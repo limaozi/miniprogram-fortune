@@ -33,7 +33,6 @@
             data-spread="celtic"
           >凯尔特十字</button>
         </view>
-
       </view>
       <canvas
         type="2d"

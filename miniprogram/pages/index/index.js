@@ -7,7 +7,7 @@ let ctx = null;
 
 // Canvas 逻辑尺寸（动态获取，适配不同设备）
 let canvasWidth = 375;  // 默认值，会在 onReady 中更新
-let canvasHeight = 667; // 默认值，会在 onReady 中更新
+let canvasHeight = 750; // 默认值，会在 onReady 中更新
 
 // 运行时状态
 let lastDraw = null;
@@ -43,6 +43,7 @@ let atlasReady = false;
 
 let CARD_WIDTH = 300;
 let CARD_HEIGHT = 400;
+let CARD_RATIO = 0.6;
 const FONT_FAMILY = "'Palatino Linotype','Book Antiqua',Palatino,'Times New Roman',serif";
 const TEXT_COLOR = '#ffffff';
 
@@ -227,6 +228,8 @@ function drawCardFromAtlas(cardId, x, y, width, height) {
     ctx.strokeRect(x, y, width, height);
     return;
   }
+  //console.log("the width is ", width, "the height is", height);
+  //console.log("the frame width is ", frame.w, "the frame height is", frame.h);
   ctx.drawImage(
     atlasImage,
     frame.x, frame.y, frame.w, frame.h,
@@ -271,10 +274,10 @@ function drawCardCell(item, x, y, cardWidth, cardHeight, wrapWidth, rotationRad)
   }
 
   const textX = x;
-  const textY = y + cardHeight + 6;
+  const textY = y + cardHeight + 18;
   const textY_R  = y + cardWidth + 18
   ctx.fillStyle = TEXT_COLOR;
-  ctx.font = `14px ${FONT_FAMILY}`;
+  ctx.font = `20px ${FONT_FAMILY}`;
   const positionLabel = item.reversed ? '逆位' : '正位';
   if (rotationRad && Math.abs(rotationRad) > 1e-3) {   
     ctx.fillText(`${item.card.nameZh} - ${positionLabel}`, textX, textY_R);
@@ -294,6 +297,7 @@ function layoutAndRenderResult(result) {
   const menuHeight = Math.max(180, Math.floor(canvasHeight * 0.20)); // 菜单区域高度（减少）
   const top = menuHeight + Math.max(10, Math.floor(canvasHeight * 0.02)); // 菜单下方留较少间距
   const bottomReserved = Math.max(60, Math.floor(canvasHeight * 0.08)); // 减少底部预留空间
+
   const availableHeight = canvasHeight - top - bottomReserved;
 
   ctx.textAlign = 'left';
@@ -327,7 +331,7 @@ function layoutAndRenderResult(result) {
     const ratio = CARD_WIDTH / CARD_HEIGHT;
     let cardH = Math.min(availableHeight * 0.5, 200);
     let cardW = Math.floor(cardH * ratio);
-    let gap = Math.max(15, Math.floor(cardW * 0.18));
+    let gap = Math.max(50, Math.floor(cardW * 0.18));
 
     const maxRowWidth = canvasWidth - padding * 2;
     const totalRow = 3 * cardW + 2 * gap;
