@@ -850,41 +850,56 @@ Page({
     const query = wx.createSelectorQuery();
     query
       .select('#tarotCanvas')
-      .node()
+      .boundingClientRect()
       .exec((res) => {
-        const canvasNode = res && res[0] && res[0].node;
-        
-        if (!canvasNode) {
-          console.error('无法获取 canvas 节点');
+        const rect = res && res[0];
+        if (!rect) {
+          console.error('无法获取 canvas 尺寸');
           return;
         }
         
-        canvas = canvasNode;
-        ctx = canvas.getContext('2d');
+        // 再次查询获取node
+        const query2 = wx.createSelectorQuery();
+        query2
+          .select('#tarotCanvas')
+          .node()
+          .exec((res2) => {
+            const canvasNode = res2 && res2[0] && res2[0].node;
+            
+            if (!canvasNode) {
+              console.error('无法获取 canvas 节点');
+              return;
+            }
+            
+            canvas = canvasNode;
+            ctx = canvas.getContext('2d');
 
-        // 使用实际屏幕尺寸（逻辑像素）
-        // 使用 windowWidth/Height 获取屏幕尺寸
-        canvasWidth = sys.windowWidth || 375;
-        canvasHeight = sys.windowHeight || 667;
-        console.log('[onReady] 使用 windowWidth/Height 尺寸:', { canvasWidth, canvasHeight });
-        
-        const dpr = sys.pixelRatio || 1;
-        canvas.width = canvasWidth * dpr;
-        canvas.height = canvasHeight * dpr;
-        ctx.scale(dpr, dpr);
-        
-        console.log('[onReady] Canvas 设置:', {
-          logicalSize: { width: canvasWidth, height: canvasHeight },
-          physicalSize: { width: canvas.width, height: canvas.height },
-          dpr
-        });
+            // 使用canvas的实际显示尺寸（px单位，不是rpx）
+            canvasWidth = rect.width || sys.windowWidth || 375;
+            canvasHeight = rect.height || sys.windowHeight || 667;
+            console.log('[onReady] Canvas 显示尺寸:', { canvasWidth, canvasHeight });
+            
+            const dpr = sys.pixelRatio || 1;
+            // 设置canvas的物理尺寸（像素）
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
+            // 缩放context以匹配逻辑尺寸
+            ctx.scale(dpr, dpr);
+            
+            console.log('[onReady] Canvas 设置:', {
+              logicalSize: { width: canvasWidth, height: canvasHeight },
+              physicalSize: { width: canvas.width, height: canvas.height },
+              dpr,
+              displaySize: { width: rect.width, height: rect.height }
+            });
 
-        loadAtlas()
-          .catch(err => {
-            console.log('Atlas 加载失败：', err);
-          })
-          .finally(() => {
-            render();
+            loadAtlas()
+              .catch(err => {
+                console.log('Atlas 加载失败：', err);
+              })
+              .finally(() => {
+                render();
+              });
           });
       });
     
