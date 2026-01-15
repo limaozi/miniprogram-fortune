@@ -1,0 +1,50 @@
+<!-- 塔罗牌占卜主页面 -->
+<swiper 
+  class="swiper-container" 
+  current="{{currentPage}}" 
+  bindchange="onSwiperChange"
+  style="height: 100vh;"
+>
+  <!-- 抽卡页面 -->
+  <swiper-item>
+    <view class="page-root">
+      <canvas
+        type="2d"
+        id="tarotCanvas"
+        class="tarot-canvas"
+        bindtouchstart="onCanvasTouchStart"
+        bindtouchmove="onCanvasTouchMove"
+        bindtouchend="onCanvasTouchEnd"
+      ></canvas>
+      <!-- 提示文字：向左滑动看解析 -->
+      <view class="swipe-hint-overlay" wx:if="{{showSwipeHint}}">
+        <text class="swipe-hint-text">← 向左滑动，看解析</text>
+      </view>
+    </view>
+  </swiper-item>
+  
+  <!-- 解析页面 -->
+  <swiper-item>
+    <view class="analysis-page-wrapper">
+      <view class="analysis-container">
+        <view class="analysis-header">
+          <text class="analysis-title">塔罗解析</text>
+          <text class="swipe-hint-text-small">右滑返回 →</text>
+        </view>
+        <scroll-view 
+          class="analysis-content" 
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          enable-back-to-top="{{false}}"
+          style="height: {{scrollViewHeight}}rpx;"
+        >
+          <view class="analysis-text-wrapper">
+            <text class="analysis-text">{{analysisText}}</text>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </swiper-item>
+</swiper>

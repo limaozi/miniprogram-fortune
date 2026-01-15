@@ -1,0 +1,12 @@
+<!-- 解析页面 -->
+<view class="analysis-page">
+  <view class="analysis-container">
+    <view class="analysis-header">
+      <text class="analysis-title">塔罗解析</text>
+      <text class="swipe-hint">右滑返回</text>
+    </view>
+    <scroll-view class="analysis-content" scroll-y="true">
+      <text class="analysis-text">{{analysisText}}</text>
+    </scroll-view>
+  </view>
+</view>

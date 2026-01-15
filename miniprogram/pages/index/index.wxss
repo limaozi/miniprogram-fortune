@@ -1,0 +1,120 @@
+/** index.wxss **/
+
+page {
+  background-color: #000;
+  height: 100vh;
+}
+
+.swiper-container {
+  width: 100%;
+  height: 100vh;
+}
+
+.page-root {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+}
+
+.tarot-canvas {
+  width: 100%;
+  height: 100vh;
+  display: block;
+}
+
+/* 滑动提示覆盖层 */
+.swipe-hint-overlay {
+  position: absolute;
+  bottom: 150rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20rpx 40rpx;
+  border-radius: 50rpx;
+  z-index: 100;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+
+.swipe-hint-text {
+  font-size: 28rpx;
+  color: #ffffff;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 解析页面样式 */
+.analysis-page-wrapper {
+  width: 100%;
+  height: 100vh;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.analysis-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40rpx 30rpx;
+  padding-top: 60rpx;
+  min-height: 0; /* 重要：让 flex 子元素可以收缩 */
+}
+
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 30rpx;
+  flex-shrink: 0; /* 头部不收缩 */
+}
+
+.analysis-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #ffffff;
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Times New Roman', serif;
+}
+
+.swipe-hint-text-small {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.analysis-content {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.65);
+  border-radius: 20rpx;
+  padding: 40rpx;
+  /* scroll-view 需要明确的高度才能显示滚动条 */
+  /* 高度将通过 JavaScript 动态设置 */
+  min-height: 0; /* 允许收缩 */
+}
+
+.analysis-text-wrapper {
+  min-height: 100%;
+  padding-bottom: 20rpx;
+}
+
+.analysis-text {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #ffffff;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'PingFang SC', sans-serif;
+  display: block;
+}

@@ -1,0 +1,55 @@
+<!-- MBTI测试页面 -->
+<view class="mbti-container">
+  <view class="mbti-header">
+    <text class="mbti-title">MBTI性格测试</text>
+    <text class="question-counter" wx:if="{{!isLoading}}">第 {{currentQuestion + 1}} / {{totalQuestions}} 题</text>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{loadingText}}</text>
+  </view>
+  
+  <view class="question-container" wx:if="{{!showResult && !isLoading}}">
+    <view class="question-card">
+      <text class="question-text">{{currentQuestionData.question}}</text>
+    </view>
+    
+    <view class="options-container">
+      <view 
+        class="option-item {{selectedOption === index ? 'selected' : ''}}"
+        wx:for="{{currentQuestionData.options}}"
+        wx:key="index"
+        wx:for-index="idx"
+        bindtap="selectOption"
+        data-index="{{idx}}"
+      >
+        <text class="option-text">{{item}}</text>
+      </view>
+    </view>
+    
+    <button 
+      class="submit-button {{selectedOption !== null ? 'active' : ''}}"
+      bindtap="nextQuestion"
+      disabled="{{selectedOption === null}}"
+    >
+      {{currentQuestion < totalQuestions - 1 ? '下一题' : '提交测试'}}
+    </button>
+  </view>
+  
+  <view class="result-container" wx:if="{{showResult}}">
+    <view class="result-card">
+      <text class="result-title">您的MBTI类型</text>
+      <text class="result-type">{{mbtiType}}</text>
+      <canvas
+        type="2d"
+        id="mbtiCanvas"
+        class="mbti-canvas"
+      ></canvas>
+      <text class="result-description">{{mbtiDescription}}</text>
+    </view>
+    <button class="restart-button" bindtap="restartTest">重新测试</button>
+    <button class="back-button" bindtap="goBack">返回首页</button>
+  </view>
+</view>
