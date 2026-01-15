@@ -8,7 +8,7 @@ page {
 .mbti-container {
   width: 100%;
   min-height: 100vh;
-  padding: 40rpx 30rpx;
+  padding: 20rpx 20rpx;
   display: flex;
   flex-direction: column;
 }
@@ -124,6 +124,10 @@ page {
 .button-container {
   margin-top: 20rpx;
   margin-bottom: 20rpx;
+  text-align: center; 
+  align-items: center; 
+  justify-content: center;
+  display: inline-flex;
 }
 
 .submit-button {
@@ -136,6 +140,10 @@ page {
   font-size: 32rpx;
   font-weight: 500;
   transition: all 0.3s ease;
+  text-align: center; 
+  align-items: center; 
+  justify-content: center;
+  display: inline-flex;
 }
 
 .submit-button.active {
@@ -402,6 +410,10 @@ page {
   font-size: 32rpx;
   font-weight: 500;
   font-family: 'PingFang SC', sans-serif;
+  text-align: center; 
+  align-items: center; 
+  justify-content: center;
+  display: inline-flex;
 }
 
 .restart-button {

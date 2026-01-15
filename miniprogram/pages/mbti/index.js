@@ -339,7 +339,7 @@ Page({
    - dimension: dimension it belongs to (EI/SN/TF/JP)
    - optionA: MBTI tendency for the first option (E/I/S/N/T/F/J/P)
    - optionB: MBTI tendency for the second option
-
+6. make questions and options feminine
 IMPORTANT: All questions and options must be written in Chinese. Only return the JSON array, no other text.`;
 
     this.callDeepseekAPI(prompt)
@@ -627,7 +627,7 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
       return `问题${index + 1}：${q.question}\n选项：${q.options.join(' / ')}\n您的选择：${selectedOption}`;
     }).join('\n\n');
     
-    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate an encouraging explanation.
+    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate a feminine and encouraging explanation in Chinese.
 
 Test questions and answers:
 ${questionsText}

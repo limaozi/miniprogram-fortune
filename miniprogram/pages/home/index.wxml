@@ -1,6 +1,6 @@
 <!-- 入口页面 -->
 <view class="home-container">
-  <view class="title">命运测试</view>
+  <view class="title">宝藏之地</view>
   <view class="button-container">
     <button class="home-button tarot-button" bindtap="goToTarot">
       <text class="button-text">塔罗命运</text>

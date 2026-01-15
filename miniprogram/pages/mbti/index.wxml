@@ -40,7 +40,9 @@
         bindtap="nextQuestion"
         disabled="{{selectedOption === null}}"
       >
+
         {{currentQuestion < totalQuestions - 1 ? '下一题' : '提交测试'}}
+    
       </button>
     </view>
   </view>
