@@ -137,6 +137,10 @@ page {
   font-size: 32rpx;
   font-weight: 500;
   font-family: 'PingFang SC', sans-serif;
+  box-sizing: border-box;
+  line-height: 100rpx;
+  padding: 0;
+  margin: 0;
 }
 
 .analysis-buttons .restart-button {
@@ -152,4 +156,5 @@ page {
 .analysis-buttons .restart-button:active,
 .analysis-buttons .back-button:active {
   transform: scale(0.98);
+  opacity: 0.9;
 }
