@@ -8,6 +8,32 @@
   <!-- 抽卡页面 -->
   <swiper-item>
     <view class="page-root">
+      <view class="tarot-menu-container">
+        <text class="tarot-title">22张大阿卡纳</text>
+        <view class="tarot-menu-buttons">
+          <button 
+            class="tarot-menu-button {{selectedSpread === 'one' ? 'active' : ''}}"
+            bindtap="selectSpread"
+            data-spread="one"
+          >单张</button>
+          <button 
+            class="tarot-menu-button {{selectedSpread === 'three' ? 'active' : ''}}"
+            bindtap="selectSpread"
+            data-spread="three"
+          >三张</button>
+          <button 
+            class="tarot-menu-button {{selectedSpread === 'five' ? 'active' : ''}}"
+            bindtap="selectSpread"
+            data-spread="five"
+          >五张十字</button>
+          <button 
+            class="tarot-menu-button {{selectedSpread === 'celtic' ? 'active' : ''}}"
+            bindtap="selectSpread"
+            data-spread="celtic"
+          >凯尔特十字</button>
+        </view>
+        <text class="tarot-hint">找一个安静的场所，默念心中的问题，点击上方菜单抽牌；再次点击可重抽</text>
+      </view>
       <canvas
         type="2d"
         id="tarotCanvas"

@@ -65,67 +65,9 @@ let dragStartHeight = 0; // 开始拖拽时的分析框高度
 
 function drawButtonArea() {
   if (!canvas || !ctx) return;
-  // 响应式尺寸：根据屏幕宽度动态调整
-  const padding = Math.max(12, Math.floor(canvasWidth * 0.037)); // 约 3.7% 宽度，最小 12px
-  const titleFontSize = Math.max(16, Math.floor(canvasWidth * 0.047)); // 约 4.7% 宽度，最小 16px
-  const titleY = Math.max(30, Math.floor(canvasHeight * 0.032)); // 约 3.2% 高度，最小 30px
-  
+  // 只绘制黑色背景，不再绘制按钮和标题（按钮已移到HTML）
   ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-  // 标题
-  ctx.fillStyle = TEXT_COLOR;
-  ctx.font = `${titleFontSize}px ${FONT_FAMILY}`;
-  ctx.textAlign = 'left';
-  ctx.fillText('22张大阿卡纳', padding, titleY);
-
-  // 四个牌阵菜单按钮
-  const options = [
-    { key: 'one', label: '单张' },
-    { key: 'three', label: '三张' },
-    { key: 'five', label: '五张十字' },
-    { key: 'celtic', label: '凯尔特十字' }
-  ];
-  const gap = Math.max(6, Math.floor(canvasWidth * 0.019)); // 约 1.9% 宽度，最小 6px
-  const itemY = titleY + Math.floor(titleFontSize * 1.2); // 标题下方
-  const totalWidth = canvasWidth - padding * 2;
-  const itemWidth = Math.floor((totalWidth - gap * (options.length - 1)) / options.length);
-  const itemHeight = Math.max(40, Math.floor(itemWidth * 0.5 + padding * 0.5)); // 按钮高度
-  menuButtons = [];
-  options.forEach((opt, idx) => {
-    const x = padding + idx * (itemWidth + gap);
-    const y = itemY;
-    const active = lastSpread === opt.key;
-    ctx.fillStyle = active ? '#1f2937' : '#3b82f6';
-    ctx.fillRect(x, y, itemWidth, itemHeight);
-    ctx.fillStyle = TEXT_COLOR;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const buttonFontSize = Math.max(12, Math.floor(canvasWidth * 0.033)); // 约 3.3% 宽度，最小 12px
-    ctx.font = `${buttonFontSize}px ${FONT_FAMILY}`;
-    ctx.fillText(opt.label, x + itemWidth / 2, y + itemHeight / 2);
-    menuButtons.push({ key: opt.key, x, y, w: itemWidth, h: itemHeight });
-  });
-
-  // 提示文字
-  ctx.fillStyle = TEXT_COLOR;
-  const hintFontSize = Math.max(12, Math.floor(canvasWidth * 0.033)); // 约 3.3% 宽度，最小 12px
-  ctx.font = `${hintFontSize}px ${FONT_FAMILY}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  const baseHintLine1 = '找一个安静的场所，默念心中的问题，点击上方菜单抽牌；';
-  const baseHintLine2 = '再次点击可重抽';
-  const hoverHint = lastHoverKey ? (SPREAD_HINTS[lastHoverKey] || '') : '';
-  const hintY = itemY + itemHeight + Math.floor(hintFontSize * 2.4);
-  const lineHeight = Math.floor(hintFontSize * 1.2);
-  ctx.fillText(baseHintLine1, padding, hintY);
-  ctx.fillText(baseHintLine2, padding, hintY + lineHeight);
-  if (hoverHint) {
-    ctx.fillStyle = '#9ca3af';
-    const hoverFontSize = Math.max(10, Math.floor(canvasWidth * 0.028)); // 约 2.8% 宽度，最小 10px
-    ctx.font = `${hoverFontSize}px ${FONT_FAMILY}`;
-    ctx.fillText(hoverHint, padding, hintY + lineHeight * 2 + Math.floor(hoverFontSize * 1.2));
-  }
 }
 
 // ----------------- 贴图加载 -----------------
@@ -829,83 +771,8 @@ function callDeepseek(spreadKey, drawResult) {
 }
 
 function handleTap(x, y) {
-  for (let i = 0; i < menuButtons.length; i++) {
-    const b = menuButtons[i];
-    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-      currentSpread = b.key;
-      if (currentSpread === 'one') {
-        lastDraw = drawOneCard();
-      } else if (currentSpread === 'three') {
-        lastDraw = drawThreeCards();
-      } else if (currentSpread === 'five') {
-        lastDraw = drawFiveCardsCross();
-      } else if (currentSpread === 'celtic') {
-        lastDraw = drawCelticCross();
-      } else {
-        lastDraw = drawThreeCards();
-      }
-      lastSpread = currentSpread;
-      lastHoverKey = null;
-      lastAnalysis = '';
-      showSwipeHint = false; // 重置提示
-      isLoading = true; // 开始加载
-      loadingAnimationFrame = 0; // 重置动画帧
-      // 更新页面数据
-      const page = getCurrentPages()[getCurrentPages().length - 1];
-      if (page && page.setData) {
-        page.setData({
-          showSwipeHint: false,
-          analysisText: ''
-        });
-      }
-      render();
-
-      callDeepseek(currentSpread, lastDraw)
-        .then(text => {
-          isLoading = false; // 加载完成
-          // 清理动画定时器
-          if (animationTimer) {
-            if (typeof wx !== 'undefined' && wx.cancelAnimationFrame) {
-              wx.cancelAnimationFrame(animationTimer);
-            } else {
-              clearTimeout(animationTimer);
-            }
-            animationTimer = null;
-          }
-          lastAnalysis = text;
-          // 保存到全局数据
-          const app = getApp();
-          if (app.globalData) {
-            app.globalData.lastAnalysis = text;
-          }
-          // 显示滑动提示
-          showSwipeHint = true;
-          // 更新页面数据
-          const page = getCurrentPages()[getCurrentPages().length - 1];
-          if (page && page.setData) {
-            page.setData({
-              showSwipeHint: true,
-              analysisText: text
-            });
-          }
-          render();
-        })
-        .catch(() => {
-          isLoading = false; // 加载失败
-          // 清理动画定时器
-          if (animationTimer) {
-            if (typeof wx !== 'undefined' && wx.cancelAnimationFrame) {
-              wx.cancelAnimationFrame(animationTimer);
-            } else {
-              clearTimeout(animationTimer);
-            }
-            animationTimer = null;
-          }
-          render();
-        });
-      return;
-    }
-  }
+  // 按钮点击现在通过HTML按钮处理，这里不再处理菜单按钮点击
+  // 保留此函数以防将来需要处理canvas上的其他点击
 }
 
 // ----------------- 小程序页面封装 -----------------
@@ -915,7 +782,8 @@ Page({
     currentPage: 0, // 当前页面索引：0=抽卡页，1=解析页
     showSwipeHint: false, // 是否显示滑动提示
     analysisText: '', // 解析文本
-    scrollViewHeight: 0 // scroll-view 的高度（rpx）
+    scrollViewHeight: 0, // scroll-view 的高度（rpx）
+    selectedSpread: null // 当前选中的牌阵
   },
   
   // 计算并设置 scroll-view 的高度
@@ -1248,7 +1116,8 @@ Page({
     this.setData({
       currentPage: 0,
       showSwipeHint: false,
-      analysisText: ''
+      analysisText: '',
+      selectedSpread: null
     });
     
     // 重新渲染
@@ -1260,6 +1129,82 @@ Page({
     wx.navigateBack({
       delta: 1
     });
+  },
+  
+  // 选择牌阵
+  selectSpread(e) {
+    const spreadKey = e.currentTarget.dataset.spread;
+    this.setData({
+      selectedSpread: spreadKey
+    });
+    
+    // 更新全局变量
+    currentSpread = spreadKey;
+    if (currentSpread === 'one') {
+      lastDraw = drawOneCard();
+    } else if (currentSpread === 'three') {
+      lastDraw = drawThreeCards();
+    } else if (currentSpread === 'five') {
+      lastDraw = drawFiveCardsCross();
+    } else if (currentSpread === 'celtic') {
+      lastDraw = drawCelticCross();
+    } else {
+      lastDraw = drawThreeCards();
+    }
+    lastSpread = currentSpread;
+    lastHoverKey = null;
+    lastAnalysis = '';
+    showSwipeHint = false; // 重置提示
+    isLoading = true; // 开始加载
+    loadingAnimationFrame = 0; // 重置动画帧
+    
+    this.setData({
+      showSwipeHint: false,
+      analysisText: ''
+    });
+    
+    render();
+
+    callDeepseek(currentSpread, lastDraw)
+      .then(text => {
+        isLoading = false; // 加载完成
+        // 清理动画定时器
+        if (animationTimer) {
+          if (typeof wx !== 'undefined' && wx.cancelAnimationFrame) {
+            wx.cancelAnimationFrame(animationTimer);
+          } else {
+            clearTimeout(animationTimer);
+          }
+          animationTimer = null;
+        }
+        lastAnalysis = text;
+        // 保存到全局数据
+        const app = getApp();
+        if (app.globalData) {
+          app.globalData.lastAnalysis = text;
+        }
+        // 显示滑动提示
+        showSwipeHint = true;
+        // 更新页面数据
+        this.setData({
+          showSwipeHint: true,
+          analysisText: text
+        });
+        render();
+      })
+      .catch(() => {
+        isLoading = false; // 加载失败
+        // 清理动画定时器
+        if (animationTimer) {
+          if (typeof wx !== 'undefined' && wx.cancelAnimationFrame) {
+            wx.cancelAnimationFrame(animationTimer);
+          } else {
+            clearTimeout(animationTimer);
+          }
+          animationTimer = null;
+        }
+        render();
+      });
   }
 });
 
