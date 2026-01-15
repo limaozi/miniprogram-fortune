@@ -25,7 +25,7 @@ page {
 /* 塔罗菜单容器 */
 .tarot-menu-container {
   width: 100%;
-  padding: 40rpx 30rpx 30rpx 30rpx;
+  padding: 30rpx 30rpx 20rpx 30rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,10 +34,10 @@ page {
 }
 
 .tarot-title {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 30rpx;
+  margin-bottom: 20rpx;
   font-family: 'PingFang SC', sans-serif;
 }
 
@@ -45,22 +45,22 @@ page {
   width: 100%;
   display: flex;
   flex-direction: row;
-  gap: 20rpx;
-  margin-bottom: 30rpx;
+  gap: 15rpx;
+  margin-bottom: 20rpx;
 }
 
 .tarot-menu-button {
   flex: 1;
-  height: 80rpx;
-  border-radius: 40rpx;
+  height: 70rpx;
+  border-radius: 35rpx;
   border: none;
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 500;
   font-family: 'PingFang SC', sans-serif;
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
   box-sizing: border-box;
-  line-height: 80rpx;
+  line-height: 70rpx;
   padding: 0;
   margin: 0;
   transition: all 0.3s ease;
@@ -77,11 +77,10 @@ page {
 }
 
 .tarot-hint {
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: rgba(255, 255, 255, 0.7);
   text-align: left;
-  font-size: 28rpx;
-  font-weight: 500;
+  line-height: 1.6;
   font-family: 'PingFang SC', sans-serif;
   padding: 20rpx 20rpx;
 }
@@ -93,6 +92,46 @@ page {
   display: block;
   position: relative;
   z-index: 1;
+}
+
+/* 加载状态覆盖层 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 40rpx;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'PingFang SC', sans-serif;
 }
 
 /* 滑动提示覆盖层 */

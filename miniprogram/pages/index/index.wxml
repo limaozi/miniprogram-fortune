@@ -42,6 +42,11 @@
         bindtouchmove="onCanvasTouchMove"
         bindtouchend="onCanvasTouchEnd"
       ></canvas>
+      <!-- 加载状态 -->
+      <view class="loading-overlay" wx:if="{{isLoading}}">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">{{loadingText}}</text>
+      </view>
       <!-- 提示文字：向左滑动看解析 -->
       <view class="swipe-hint-overlay" wx:if="{{showSwipeHint}}">
         <text class="swipe-hint-text">← 向左滑动，看解析</text>
