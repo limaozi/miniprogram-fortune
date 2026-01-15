@@ -289,30 +289,33 @@ function layoutAndRenderResult(result) {
 
   // 响应式尺寸
   const padding = Math.max(12, Math.floor(canvasWidth * 0.037)); // 约 3.7% 宽度，最小 12px
-  const top = Math.max(80, Math.floor(canvasHeight * 0.11)); // 约 11% 高度，最小 80px
-  const bottomReserved = Math.max(100, Math.floor(canvasHeight * 0.11)); // 为分析框预留空间
+  // 菜单高度大约为 280-300px (rpx转换为px后)，调整top值以在菜单下方开始绘制
+  // 减少菜单高度计算，让卡片更靠上
+  const menuHeight = Math.max(180, Math.floor(canvasHeight * 0.20)); // 菜单区域高度（减少）
+  const top = menuHeight + Math.max(10, Math.floor(canvasHeight * 0.02)); // 菜单下方留较少间距
+  const bottomReserved = Math.max(60, Math.floor(canvasHeight * 0.08)); // 减少底部预留空间
   const availableHeight = canvasHeight - top - bottomReserved;
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
 
   if (currentSpread === 'one') {
-    const cardH = Math.min(availableHeight * 0.6, 220);
+    const cardH = Math.min(availableHeight * 0.75, 280);
     const cardW = Math.floor(cardH * (CARD_WIDTH / CARD_HEIGHT));
     const x = Math.floor((canvasWidth - cardW) / 2);
-    const y = top + Math.floor((availableHeight - cardH) / 2) - 30;
+    const y = top + Math.floor((availableHeight - cardH) / 3); // Move cards higher
     drawCardCell(result[0], x, y, cardW, cardH, canvasWidth - padding * 2);
     return;
   }
 
   if (currentSpread === 'three') {
     const cols = 3;
-    const gap = 10;
-    const cardH = Math.min(availableHeight * 0.6, 150);
+    const gap = 12;
+    const cardH = Math.min(availableHeight * 0.7, 180);
     const cardW = Math.floor(cardH * (CARD_WIDTH / CARD_HEIGHT));
     const totalW = cols * cardW + (cols - 1) * gap;
     const startX = Math.max(padding, Math.floor((canvasWidth - totalW) / 2));
-    const y = top + Math.floor((availableHeight - cardH) / 2);
+    const y = top + Math.floor((availableHeight - cardH) / 3); // Move cards higher
     result.forEach((item, idx) => {
       const x = startX + idx * (cardW + gap);
       drawCardCell(item, x, y, cardW, cardH, cardW);
@@ -322,7 +325,7 @@ function layoutAndRenderResult(result) {
 
   if (currentSpread === 'five') {
     const ratio = CARD_WIDTH / CARD_HEIGHT;
-    let cardH = Math.min(availableHeight * 0.42, 170);
+    let cardH = Math.min(availableHeight * 0.5, 200);
     let cardW = Math.floor(cardH * ratio);
     let gap = Math.max(15, Math.floor(cardW * 0.18));
 
@@ -330,13 +333,13 @@ function layoutAndRenderResult(result) {
     const totalRow = 3 * cardW + 2 * gap;
     if (totalRow > maxRowWidth) {
       const scale = maxRowWidth / totalRow;
-      cardW = Math.max(60, Math.floor(cardW * scale));
-      cardH = Math.max(80, Math.floor(cardW / ratio));
-      gap = Math.max(8, Math.floor(gap * scale));
+      cardW = Math.max(70, Math.floor(cardW * scale));
+      cardH = Math.max(90, Math.floor(cardW / ratio));
+      gap = Math.max(10, Math.floor(gap * scale));
     }
 
     const cx = Math.floor(canvasWidth / 2);
-    const cy = top + Math.floor(availableHeight / 2);
+    const cy = top + Math.floor(availableHeight / 2.5); // Move cards higher
     const centerX0 = cx - Math.floor(cardW / 2);
     const centerY0 = cy - Math.floor(cardH / 2);
 
@@ -356,10 +359,10 @@ function layoutAndRenderResult(result) {
 
   if (currentSpread === 'celtic') {
     const ratio = CARD_WIDTH / CARD_HEIGHT;
-    let cardH = Math.min(availableHeight * 0.32, 160);
+    let cardH = Math.min(availableHeight * 0.4, 180);
     let cardW = Math.floor(cardH * ratio);
-    let gap = Math.max(20, Math.floor(cardW * 0.2));
-    let stackGap = Math.max(20, Math.floor(cardH * 0.15));
+    let gap = Math.max(18, Math.floor(cardW * 0.2));
+    let stackGap = Math.max(18, Math.floor(cardH * 0.15));
 
     const maxWidth = canvasWidth - padding * 3;
     const maxHeight = availableHeight;
@@ -394,8 +397,8 @@ function layoutAndRenderResult(result) {
     const rightX = centerX + cardW + gap;
     const rightColX = rightX + gap + cardW + gap;
 
-    // 垂直居中：十字部分在可用区域中央
-    const crossCY = top * 1.5 + Math.floor(availableHeight / 2);
+    // 垂直居中：十字部分在可用区域中央，但更靠上
+    const crossCY = top + Math.floor(availableHeight / 2.2); // Move cards higher
     const cx0 = centerX;
     const cy0 = crossCY - Math.floor(cardH / 2);
 
@@ -407,7 +410,7 @@ function layoutAndRenderResult(result) {
     pos[4] = { x: cx0, y: cy0 - cardH - gap, r: 0 };
     pos[5] = { x: rightX, y: cy0, r: 0 };
 
-    const rightTop = top * 1.5 + Math.max(0, Math.floor((availableHeight - totalRightH) / 2));
+    const rightTop = top + Math.max(0, Math.floor((availableHeight - totalRightH) / 2.5)); // Move cards higher
     pos[6] = { x: rightColX, y: rightTop + 0 * (cardH + stackGap), r: 0 };
     pos[7] = { x: rightColX, y: rightTop + 1 * (cardH + stackGap), r: 0 };
     pos[8] = { x: rightColX, y: rightTop + 2 * (cardH + stackGap), r: 0 };
@@ -783,7 +786,9 @@ Page({
     showSwipeHint: false, // 是否显示滑动提示
     analysisText: '', // 解析文本
     scrollViewHeight: 0, // scroll-view 的高度（rpx）
-    selectedSpread: null // 当前选中的牌阵
+    selectedSpread: null, // 当前选中的牌阵
+    isLoading: false, // 是否正在加载
+    loadingText: '正在生成解析...' // 加载提示文字
   },
   
   // 计算并设置 scroll-view 的高度
@@ -1117,7 +1122,8 @@ Page({
       currentPage: 0,
       showSwipeHint: false,
       analysisText: '',
-      selectedSpread: null
+      selectedSpread: null,
+      isLoading: false
     });
     
     // 重新渲染
@@ -1160,7 +1166,9 @@ Page({
     
     this.setData({
       showSwipeHint: false,
-      analysisText: ''
+      analysisText: '',
+      isLoading: true,
+      loadingText: '正在生成解析...'
     });
     
     render();
@@ -1188,7 +1196,8 @@ Page({
         // 更新页面数据
         this.setData({
           showSwipeHint: true,
-          analysisText: text
+          analysisText: text,
+          isLoading: false
         });
         render();
       })
@@ -1203,6 +1212,9 @@ Page({
           }
           animationTimer = null;
         }
+        this.setData({
+          isLoading: false
+        });
         render();
       });
   }
