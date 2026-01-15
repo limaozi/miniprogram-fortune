@@ -224,12 +224,101 @@ Page({
     mbtiType: "",
     mbtiDescription: "",
     isLoading: false,
-    loadingText: "正在生成测试题目..."
+    loadingText: "正在生成测试题目...",
+    resultPage: 0, // 结果页面索引：0=回顾页，1=结果页
+    reviewScrollHeight: 0, // 回顾页面scroll-view高度
+    resultScrollHeight: 0 // 结果页面scroll-view高度
   },
   
   onLoad() {
     // 调用API生成5道问题
     this.generateQuestions();
+    // 计算scroll-view高度
+    this.updateReviewScrollHeight();
+    this.updateResultScrollHeight();
+  },
+  
+  // 计算并设置回顾页面scroll-view的高度
+  updateReviewScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx)
+    const headerHeight = 150; // header本身高度
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom;
+    
+    this.setData({
+      reviewScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateReviewScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.reviewScrollHeight
+    });
+  },
+  
+  // 计算并设置结果页面scroll-view的高度
+  updateResultScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx) - 按钮区域(约 240rpx) - 按钮margin-bottom(20rpx)
+    const headerHeight = 150;
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const buttonArea = 240;
+    const buttonMarginBottom = 20;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom - buttonArea - buttonMarginBottom;
+    
+    this.setData({
+      resultScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateResultScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.resultScrollHeight
+    });
+  },
+  
+  // 结果页面swiper切换
+  onResultSwiperChange(e) {
+    const current = e.detail.current;
+    this.setData({
+      resultPage: current
+    });
+    
+    // 如果切换到回顾页面，更新scroll-view高度
+    if (current === 0) {
+      this.updateReviewScrollHeight();
+    }
+    
+    // 如果切换到结果页面，更新scroll-view高度并延迟绘制图片
+    if (current === 1 && this.data.mbtiType) {
+      this.updateResultScrollHeight();
+      setTimeout(() => {
+        if (!canvas) {
+          this.initCanvas();
+        }
+        if (mbtiImage && mbtiAtlas) {
+          this.drawMBTIImage(this.data.mbtiType);
+        } else {
+          const checkAndDraw = () => {
+            if (mbtiImage && mbtiAtlas && canvas && ctx) {
+              this.drawMBTIImage(this.data.mbtiType);
+            } else {
+              setTimeout(checkAndDraw, 50);
+            }
+          };
+          checkAndDraw();
+        }
+      }, 200);
+    }
   },
   
   // 第一次调用API：生成5道MBTI测试问题
@@ -239,19 +328,19 @@ Page({
       loadingText: "正在生成测试题目..."
     });
     
-    const prompt = `请生成5道MBTI性格测试题目。要求：
-1. 每道题有2个选项
-2. 题目要覆盖MBTI的四个维度：E/I（外向/内向）、S/N（感觉/直觉）、T/F（思考/情感）、J/P（判断/感知）
-3. 确保每个维度至少有一道题
-4. 题目要贴近日常生活，容易理解
-5. 返回格式为JSON数组，每个题目包含：
-   - question: 题目内容
-   - options: 选项数组（2个选项）
-   - dimension: 所属维度（EI/SN/TF/JP）
-   - optionA: 第一个选项对应的MBTI倾向（E/I/S/N/T/F/J/P）
-   - optionB: 第二个选项对应的MBTI倾向
+    const prompt = `Please generate 5 MBTI personality test questions. Requirements:
+1. Each question should have 2 options
+2. Questions should cover all four MBTI dimensions: E/I (Extraversion/Introversion), S/N (Sensing/Intuition), T/F (Thinking/Feeling), J/P (Judging/Perceiving)
+3. Ensure at least one question from each dimension
+4. Questions should be relatable to daily life and easy to understand
+5. Return format should be a JSON array, each question containing:
+   - question: question content
+   - options: array of options (2 options)
+   - dimension: dimension it belongs to (EI/SN/TF/JP)
+   - optionA: MBTI tendency for the first option (E/I/S/N/T/F/J/P)
+   - optionB: MBTI tendency for the second option
 
-只返回JSON数组，不要其他文字说明。`;
+IMPORTANT: All questions and options must be written in Chinese. Only return the JSON array, no other text.`;
 
     this.callDeepseekAPI(prompt)
       .then(response => {
@@ -515,8 +604,12 @@ Page({
         answers: answers
       });
     } else {
-      // 提交测试，计算MBTI类型
-      this.submitTest(answers);
+      // 提交测试，先保存答案，再计算MBTI类型
+      this.setData({
+        answers: answers
+      }, () => {
+        this.submitTest(answers);
+      });
     }
   },
   
@@ -534,21 +627,21 @@ Page({
       return `问题${index + 1}：${q.question}\n选项：${q.options.join(' / ')}\n您的选择：${selectedOption}`;
     }).join('\n\n');
     
-    const prompt = `根据以下MBTI测试题目和用户的答案，判断用户的MBTI性格类型，并生成一段鼓励性的解释。
+    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate an encouraging explanation.
 
-测试题目和答案：
+Test questions and answers:
 ${questionsText}
 
-要求：
-1. 根据答案判断用户的MBTI类型（16种类型之一：INTJ, INTP, ENTJ, ENTP, INFJ, INFP, ENFJ, ENFP, ISTJ, ISFJ, ESTJ, ESFJ, ISTP, ISFP, ESTP, ESFP）
-2. 生成一段200-300字的鼓励性解释，用温暖、积极、鼓励的语言描述这个性格类型的特点和优势
-3. 返回格式为JSON对象：
+Requirements:
+1. Determine the user's MBTI type based on the answers (one of 16 types: INTJ, INTP, ENTJ, ENTP, INFJ, INFP, ENFJ, ENFP, ISTJ, ISFJ, ESTJ, ESFJ, ISTP, ISFP, ESTP, ESFP)
+2. Generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone
+3. Return format should be a JSON object:
    {
-     "type": "MBTI类型（如INTJ）",
-     "description": "鼓励性的解释文字"
+     "type": "MBTI type (e.g., INTJ)",
+     "description": "encouraging explanation text"
    }
 
-只返回JSON对象，不要其他文字说明。`;
+IMPORTANT: The type should be in English (e.g., INTJ), but the description must be written in Chinese. Only return the JSON object, no other text.`;
 
     this.callDeepseekAPI(prompt)
       .then(response => {
@@ -575,27 +668,11 @@ ${questionsText}
             showResult: true,
             mbtiType: mbtiType,
             mbtiDescription: description,
-            isLoading: false
+            isLoading: false,
+            resultPage: 0 // 默认显示回顾页面
           }, () => {
-            // 延迟绘制图片，确保canvas已渲染
-            setTimeout(() => {
-              if (!canvas) {
-                this.initCanvas();
-              }
-              if (mbtiImage && mbtiAtlas) {
-                this.drawMBTIImage(mbtiType);
-              } else {
-                // 如果资源还没加载完，等待加载完成后再绘制
-                const checkAndDraw = () => {
-                  if (mbtiImage && mbtiAtlas && canvas && ctx) {
-                    this.drawMBTIImage(mbtiType);
-                  } else {
-                    setTimeout(checkAndDraw, 50);
-                  }
-                };
-                checkAndDraw();
-              }
-            }, 200);
+            // 更新scroll-view高度
+            this.updateReviewScrollHeight();
           });
         } catch (error) {
           console.error('解析结果失败:', error);
@@ -605,16 +682,11 @@ ${questionsText}
             showResult: true,
             mbtiType: result.type,
             mbtiDescription: result.description,
-            isLoading: false
+            isLoading: false,
+            resultPage: 0 // 默认显示回顾页面
           }, () => {
-            setTimeout(() => {
-              if (!canvas) {
-                this.initCanvas();
-              }
-              if (mbtiImage && mbtiAtlas) {
-                this.drawMBTIImage(result.type);
-              }
-            }, 200);
+            // 更新scroll-view高度
+            this.updateReviewScrollHeight();
           });
         }
       })
@@ -626,8 +698,11 @@ ${questionsText}
           showResult: true,
           mbtiType: result.type,
           mbtiDescription: result.description,
-          isLoading: false
+          isLoading: false,
+          resultPage: 0 // 默认显示回顾页面
         }, () => {
+          // 更新scroll-view高度
+          this.updateReviewScrollHeight();
           setTimeout(() => {
             if (!canvas) {
               this.initCanvas();
@@ -675,7 +750,8 @@ ${questionsText}
       mbtiDescription: "",
       currentQuestion: 0,
       selectedOption: null,
-      answers: []
+      answers: [],
+      resultPage: 0
     });
     
     // 重新生成题目

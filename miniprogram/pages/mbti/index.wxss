@@ -60,7 +60,7 @@ page {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  margin-bottom: 60rpx;
+  margin-bottom: 30rpx;
 }
 
 .option-item {
@@ -69,17 +69,61 @@ page {
   padding: 30rpx;
   border: 2rpx solid transparent;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
 }
 
 .option-item.selected {
   background: rgba(102, 126, 234, 0.3);
   border-color: #667eea;
+  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.3);
+}
+
+.option-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-circle {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.option-circle.checked {
+  border-color: #667eea;
+  background: #667eea;
+}
+
+.option-checkmark {
+  width: 20rpx;
+  height: 20rpx;
+  border: 3rpx solid #ffffff;
+  border-top: none;
+  border-right: none;
+  transform: rotate(-45deg);
+  margin-top: -4rpx;
 }
 
 .option-text {
   font-size: 30rpx;
   color: #ffffff;
   font-family: 'PingFang SC', sans-serif;
+  flex: 1;
+}
+
+.button-container {
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .submit-button {
@@ -91,7 +135,6 @@ page {
   color: rgba(255, 255, 255, 0.5);
   font-size: 32rpx;
   font-weight: 500;
-  margin-top: auto;
   transition: all 0.3s ease;
 }
 
@@ -104,25 +147,209 @@ page {
   transform: scale(0.98);
 }
 
+.result-swiper {
+  width: 100%;
+  height: 100vh;
+  align-items: center;
+}
+
 .result-container {
-  flex: 1;
+  width: 100%;
+  height: 100vh;
+  padding: 40rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  box-sizing: border-box;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 30rpx;
+  flex-shrink: 0;
+}
+
+.result-content {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.result-content .result-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  padding-bottom: 30rpx;
+  box-sizing: border-box;
+}
+
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 回顾页面样式 */
+.review-container {
+  width: 100%;
+  height: 100vh;
+  padding: 0 20rpx;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  box-sizing: border-box;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 30rpx;
+  flex-shrink: 0;
+}
+
+.review-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.swipe-hint-text-small {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.review-content {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  width: 100%;
+  padding-bottom: 30rpx;
+}
+
+.review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  width: 100%;
+}
+
+.review-question-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15rpx;
+  backdrop-filter: blur(10px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.review-question-number {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'PingFang SC', sans-serif;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.review-question-text {
+  font-size: 30rpx;
+  color: #ffffff;
+  line-height: 1.6;
+  font-family: 'PingFang SC', sans-serif;
+  display: block;
+}
+
+.review-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+  width: 100%;
+}
+
+.review-option {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border: 2rpx solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.review-option.selected {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.review-option-indicator {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 40rpx 0;
+  flex-shrink: 0;
+}
+
+.review-option-circle {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.review-option-circle.checked {
+  border-color: #667eea;
+  background: #667eea;
+}
+
+.review-option-checkmark {
+  width: 18rpx;
+  height: 18rpx;
+  border: 3rpx solid #ffffff;
+  border-top: none;
+  border-right: none;
+  transform: rotate(-45deg);
+  margin-top: -4rpx;
+}
+
+.review-option-text {
+  font-size: 28rpx;
+  color: #ffffff;
+  font-family: 'PingFang SC', sans-serif;
+  flex: 1;
 }
 
 .result-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 30rpx;
-  padding: 60rpx 40rpx;
-  margin-bottom: 40rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  backdrop-filter: blur(10px);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .result-title {
@@ -139,33 +366,41 @@ page {
   margin-bottom: 30rpx;
   font-family: 'PingFang SC', sans-serif;
   text-shadow: 0 0 20rpx rgba(102, 126, 234, 0.5);
+  text-align: center;
+  width: 100%;
 }
 
 .mbti-canvas {
   width: 300rpx;
   height: 300rpx;
-  margin: 20rpx 0 30rpx 0;
+  margin: 20rpx auto 30rpx auto;
   border-radius: 20rpx;
   overflow: hidden;
+  display: block;
 }
 
 .result-description {
   font-size: 28rpx;
   color: #ffffff;
   line-height: 1.8;
-  text-align: center;
+  text-align: left;
   font-family: 'PingFang SC', sans-serif;
+  margin-top: 30rpx;
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  box-sizing: border-box;
+  padding: 0 20rpx;
 }
 
-.restart-button,
-.back-button {
-  width: 80%;
+.result-buttons .restart-button,
+.result-buttons .back-button {
+  width: 100%;
   height: 100rpx;
   border-radius: 50rpx;
   border: none;
   font-size: 32rpx;
   font-weight: 500;
-  margin-bottom: 20rpx;
   font-family: 'PingFang SC', sans-serif;
 }
 

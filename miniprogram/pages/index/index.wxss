@@ -118,3 +118,38 @@ page {
   font-family: 'PingFang SC', sans-serif;
   display: block;
 }
+
+/* 分析页面按钮区域 */
+.analysis-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 30rpx 0;
+  flex-shrink: 0;
+}
+
+.analysis-buttons .restart-button,
+.analysis-buttons .back-button {
+  width: 100%;
+  height: 100rpx;
+  border-radius: 50rpx;
+  border: none;
+  font-size: 32rpx;
+  font-weight: 500;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.analysis-buttons .restart-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.analysis-buttons .back-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.analysis-buttons .restart-button:active,
+.analysis-buttons .back-button:active {
+  transform: scale(0.98);
+}

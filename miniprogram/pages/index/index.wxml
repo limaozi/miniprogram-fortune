@@ -44,6 +44,10 @@
             <text class="analysis-text">{{analysisText}}</text>
           </view>
         </scroll-view>
+        <view class="analysis-buttons">
+          <button class="restart-button" bindtap="restartTarot">重新抽牌</button>
+          <button class="back-button" bindtap="goBackHome">返回首页</button>
+        </view>
       </view>
     </view>
   </swiper-item>

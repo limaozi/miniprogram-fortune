@@ -12,7 +12,7 @@ page {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40rpx;
+  padding: 0 20rpx;
 }
 
 .title {

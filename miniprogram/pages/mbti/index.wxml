@@ -18,38 +18,126 @@
     
     <view class="options-container">
       <view 
-        class="option-item {{selectedOption === index ? 'selected' : ''}}"
+        class="option-item {{selectedOption === idx ? 'selected' : ''}}"
         wx:for="{{currentQuestionData.options}}"
         wx:key="index"
         wx:for-index="idx"
         bindtap="selectOption"
         data-index="{{idx}}"
       >
+        <view class="option-indicator">
+          <view class="option-circle {{selectedOption === idx ? 'checked' : ''}}">
+            <view class="option-checkmark" wx:if="{{selectedOption === idx}}"></view>
+          </view>
+        </view>
         <text class="option-text">{{item}}</text>
       </view>
     </view>
     
-    <button 
-      class="submit-button {{selectedOption !== null ? 'active' : ''}}"
-      bindtap="nextQuestion"
-      disabled="{{selectedOption === null}}"
-    >
-      {{currentQuestion < totalQuestions - 1 ? '下一题' : '提交测试'}}
-    </button>
+    <view class="button-container">
+      <button 
+        class="submit-button {{selectedOption !== null ? 'active' : ''}}"
+        bindtap="nextQuestion"
+        disabled="{{selectedOption === null}}"
+      >
+        {{currentQuestion < totalQuestions - 1 ? '下一题' : '提交测试'}}
+      </button>
+    </view>
   </view>
   
-  <view class="result-container" wx:if="{{showResult}}">
-    <view class="result-card">
-      <text class="result-title">您的MBTI类型</text>
-      <text class="result-type">{{mbtiType}}</text>
-      <canvas
-        type="2d"
-        id="mbtiCanvas"
-        class="mbti-canvas"
-      ></canvas>
-      <text class="result-description">{{mbtiDescription}}</text>
-    </view>
-    <button class="restart-button" bindtap="restartTest">重新测试</button>
-    <button class="back-button" bindtap="goBack">返回首页</button>
-  </view>
+  <swiper 
+    class="result-swiper" 
+    wx:if="{{showResult}}"
+    current="{{resultPage}}"
+    bindchange="onResultSwiperChange"
+    style="height: 100vh;"
+  >
+    <!-- 回顾页面：显示所有问题和答案 -->
+    <swiper-item>
+      <view class="review-container">
+        <view class="review-header">
+          <text class="review-title">测试回顾</text>
+          <text class="swipe-hint-text-small">右滑查看结果 →</text>
+        </view>
+        <scroll-view 
+          class="review-content" 
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          enable-back-to-top="{{false}}"
+          style="height: {{reviewScrollHeight}}rpx;"
+        >
+          <view class="review-list">
+            <view 
+              class="review-item"
+              wx:for="{{questions}}"
+              wx:key="index"
+              wx:for-index="qIdx"
+            >
+              <view class="review-question-card">
+                <text class="review-question-number">问题 {{qIdx + 1}}</text>
+                <text class="review-question-text">{{item.question}}</text>
+              </view>
+              <view class="review-options">
+                <view 
+                  class="review-option {{answers[qIdx] && answers[qIdx].choice === item.optionA ? 'selected' : ''}}"
+                >
+                  <view class="review-option-indicator">
+                    <view class="review-option-circle {{answers[qIdx] && answers[qIdx].choice === item.optionA ? 'checked' : ''}}">
+                      <view class="review-option-checkmark" wx:if="{{answers[qIdx] && answers[qIdx].choice === item.optionA}}"></view>
+                    </view>
+                  </view>
+                  <text class="review-option-text">{{item.options[0]}}</text>
+                </view>
+                <view 
+                  class="review-option {{answers[qIdx] && answers[qIdx].choice === item.optionB ? 'selected' : ''}}"
+                >
+                  <view class="review-option-indicator">
+                    <view class="review-option-circle {{answers[qIdx] && answers[qIdx].choice === item.optionB ? 'checked' : ''}}">
+                      <view class="review-option-checkmark" wx:if="{{answers[qIdx] && answers[qIdx].choice === item.optionB}}"></view>
+                    </view>
+                  </view>
+                  <text class="review-option-text">{{item.options[1]}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </swiper-item>
+    
+    <!-- 结果页面：显示MBTI类型和分析 -->
+    <swiper-item>
+      <view class="result-container">
+        <view class="result-header">
+          <text class="result-title">您的MBTI类型</text>
+          <text class="swipe-hint-text-small">← 左滑返回</text>
+        </view>
+        <scroll-view 
+          class="result-content" 
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          enable-back-to-top="{{false}}"
+          style="height: {{resultScrollHeight}}rpx;"
+        >
+          <view class="result-card">
+            <text class="result-type">{{mbtiType}}</text>
+            <canvas
+              type="2d"
+              id="mbtiCanvas"
+              class="mbti-canvas"
+            ></canvas>
+            <text class="result-description">{{mbtiDescription}}</text>
+          </view>
+        </scroll-view>
+        <view class="result-buttons">
+          <button class="restart-button" bindtap="restartTest">重新测试</button>
+          <button class="back-button" bindtap="goBack">返回首页</button>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
 </view>

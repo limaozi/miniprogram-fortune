@@ -923,10 +923,11 @@ Page({
     const sys = wx.getSystemInfoSync();
     const windowHeight = sys.windowHeight || 667;
     const rpxRatio = 750 / sys.windowWidth; // rpx 转换比例
-    // 计算可用高度：窗口高度 - 头部高度(约 200rpx) - padding(约 80rpx)
+    // 计算可用高度：窗口高度 - 头部高度(约 200rpx) - padding(约 80rpx) - 按钮区域(约 280rpx)
     const headerHeight = 200; // rpx
     const padding = 80; // rpx
-    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - padding;
+    const buttonArea = 280; // rpx (按钮高度 + gap + padding)
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - padding - buttonArea;
     
     this.setData({
       scrollViewHeight: Math.max(300, scrollViewHeightRpx) // 最小高度 300rpx
@@ -1221,6 +1222,44 @@ Page({
 
     console.log('[TouchEnd] 处理点击:', { x, y });
     handleTap(x, y);
+  },
+  
+  // 重新抽牌
+  restartTarot() {
+    // 重置状态
+    lastDraw = null;
+    lastAnalysis = '';
+    isLoading = false;
+    showSwipeHint = false;
+    currentSpread = null;
+    lastSpread = null;
+    
+    // 清理动画定时器
+    if (animationTimer) {
+      if (typeof wx !== 'undefined' && wx.cancelAnimationFrame) {
+        wx.cancelAnimationFrame(animationTimer);
+      } else {
+        clearTimeout(animationTimer);
+      }
+      animationTimer = null;
+    }
+    
+    // 切换回抽卡页面
+    this.setData({
+      currentPage: 0,
+      showSwipeHint: false,
+      analysisText: ''
+    });
+    
+    // 重新渲染
+    render();
+  },
+  
+  // 返回首页
+  goBackHome() {
+    wx.navigateBack({
+      delta: 1
+    });
   }
 });
 
