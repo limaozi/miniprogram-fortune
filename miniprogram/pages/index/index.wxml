@@ -10,6 +10,7 @@
     <view class="page-root">
       <view class="tarot-menu-container">
         <text class="tarot-title">22张大阿卡纳</text>
+        <text class="tarot-hint">找一个安静的场所，默念心中的问题，点击上方菜单抽牌；再次点击可重抽</text>
         <view class="tarot-menu-buttons">
           <button 
             class="tarot-menu-button {{selectedSpread === 'one' ? 'active' : ''}}"
@@ -32,7 +33,6 @@
             data-spread="celtic"
           >凯尔特十字</button>
         </view>
-        <text class="tarot-hint">找一个安静的场所，默念心中的问题，点击上方菜单抽牌；再次点击可重抽</text>
       </view>
       <canvas
         type="2d"
