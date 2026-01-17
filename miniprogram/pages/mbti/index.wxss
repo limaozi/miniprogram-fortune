@@ -175,8 +175,8 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20rpx 0;
-  margin-bottom: 30rpx;
+  padding: 0rpx 0;
+  margin-bottom: 10rpx;
   flex-shrink: 0;
 }
 
@@ -464,4 +464,13 @@ page {
   font-size: 28rpx;
   color: rgba(255, 255, 255, 0.8);
   font-family: 'PingFang SC', sans-serif;
+}
+
+.spinner-bottom {
+  position: absolute;
+  bottom: 20rpx;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

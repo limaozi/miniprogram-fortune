@@ -1,7 +1,6 @@
 // mbti.js - MBTI测试页面
 
 // DeepSeek API 配置
-const DEEPSEEK_API_KEY = 'sk-fb3403d7e4e94fe7815646045c2ca171';
 const NVIDIA_DEEPSEEK_API_KEY = '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';
 const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
@@ -223,6 +222,7 @@ Page({
     showResult: false,
     mbtiType: "",
     mbtiDescription: "",
+    mbtiShortDescription: "",
     isLoading: false,
     loadingText: "正在生成测试题目...",
     resultPage: 0, // 结果页面索引：0=回顾页，1=结果页
@@ -563,7 +563,8 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
         
         // 清空canvas
         ctx.clearRect(0, 0, displayWidth, displayHeight);
-        
+        console.log("mbti image is ", mbtiImage);
+        console.log("frame.x is ", frame.x, " frame.y is ", frame.y, " frame.w is ", frame.w, " frame.h is ", frame.h, " displayWidth is ", displayWidth, " displayHeight is ", displayHeight);
         // 绘制图片
         ctx.drawImage(
           mbtiImage,
@@ -627,7 +628,7 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
       return `问题${index + 1}：${q.question}\n选项：${q.options.join(' / ')}\n您的选择：${selectedOption}`;
     }).join('\n\n');
     
-    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate a feminine and encouraging explanation in Chinese.
+    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate a encouraging explanation in Chinese.
 
 Test questions and answers:
 ${questionsText}
@@ -640,7 +641,7 @@ Requirements:
      "type": "MBTI type (e.g., INTJ)",
      "description": "encouraging explanation text"
    }
-
+4. the answer may have some breaks, emoji, more like how human-being represent
 IMPORTANT: The type should be in English (e.g., INTJ), but the description must be written in Chinese. Only return the JSON object, no other text.`;
 
     this.callDeepseekAPI(prompt)
@@ -663,11 +664,12 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
           
           const mbtiType = result.type || this.calculateMBTIType(answers).type;
           const description = result.description || MBTI_DESCRIPTIONS[mbtiType] || "您的性格类型：" + mbtiType;
-          
+        
           this.setData({
             showResult: true,
             mbtiType: mbtiType,
             mbtiDescription: description,
+            mbtiShortDescription: mbtiType + ": " +MBTI_DESCRIPTIONS[mbtiType],
             isLoading: false,
             resultPage: 0 // 默认显示回顾页面
           }, () => {
@@ -682,6 +684,7 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
             showResult: true,
             mbtiType: result.type,
             mbtiDescription: result.description,
+            mbtiShortDescription: mbtiType + ": " +MBTI_DESCRIPTIONS[mbtiType],
             isLoading: false,
             resultPage: 0 // 默认显示回顾页面
           }, () => {
@@ -698,6 +701,7 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
           showResult: true,
           mbtiType: result.type,
           mbtiDescription: result.description,
+          mbtiShortDescription: mbtiType + ": " +MBTI_DESCRIPTIONS[mbtiType],
           isLoading: false,
           resultPage: 0 // 默认显示回顾页面
         }, () => {
@@ -748,6 +752,7 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
       showResult: false,
       mbtiType: "",
       mbtiDescription: "",
+      mbtiShortDescription: "",
       currentQuestion: 0,
       selectedOption: null,
       answers: [],
