@@ -33,7 +33,7 @@
             data-spread="celtic"
           >凯尔特十字</button>
         </view>
-      </view>
+        </view>
       <canvas
         type="2d"
         id="tarotCanvas"
@@ -42,19 +42,23 @@
         bindtouchmove="onCanvasTouchMove"
         bindtouchend="onCanvasTouchEnd"
       ></canvas>
-      <!-- 加载状态 -->
-      <view class="loading-overlay" wx:if="{{isLoading}}">
-        <view class="loading-spinner"></view>
-        <text class="loading-text">{{loadingText}}</text>
-      </view>
       <!-- 提示文字：向左滑动看解析 -->
-      <view class="swipe-hint-overlay" wx:if="{{showSwipeHint}}">
-        <text class="swipe-hint-text">← 向左滑动，看解析</text>
-      </view>
+          <!-- 加载状态 -->
+  <view class="loading-overlay" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">{{loadingText}}</text>
+  </view>
+  
+  <!-- 滑动提示 -->
+  <view class="swipe-hint-overlay" wx:if="{{showSwipeHint}}">
+    <text class="swipe-hint-text">← 向左滑动，看解析</text>
+  </view>
     </view>
   </swiper-item>
   
-  <!-- 解析页面 -->
+
+  
+  <!-- 第一个滑动页面 -->
   <swiper-item>
     <view class="analysis-page-wrapper">
       <view class="analysis-container">

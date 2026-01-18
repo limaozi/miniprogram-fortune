@@ -274,10 +274,10 @@ function drawCardCell(item, x, y, cardWidth, cardHeight, wrapWidth, rotationRad)
   }
 
   const textX = x;
-  const textY = y + cardHeight + 18;
-  const textY_R  = y + cardWidth + 18
+  const textY = y + cardHeight * 1.1;
+  const textY_R  = y + cardWidth * 1.2
   ctx.fillStyle = TEXT_COLOR;
-  ctx.font = `20px ${FONT_FAMILY}`;
+  ctx.font = `14px ${FONT_FAMILY}`;
   const positionLabel = item.reversed ? '逆位' : '正位';
   if (rotationRad && Math.abs(rotationRad) > 1e-3) {   
     ctx.fillText(`${item.card.nameZh} - ${positionLabel}`, textX, textY_R);
@@ -294,9 +294,9 @@ function layoutAndRenderResult(result) {
   const padding = Math.max(12, Math.floor(canvasWidth * 0.037)); // 约 3.7% 宽度，最小 12px
   // 菜单高度大约为 280-300px (rpx转换为px后)，调整top值以在菜单下方开始绘制
   // 减少菜单高度计算，让卡片更靠上
-  const menuHeight = Math.max(180, Math.floor(canvasHeight * 0.20)); // 菜单区域高度（减少）
+  const menuHeight = Math.max(50, Math.floor(canvasHeight * 0.1)); // 菜单区域高度（减少）
   const top = menuHeight + Math.max(10, Math.floor(canvasHeight * 0.02)); // 菜单下方留较少间距
-  const bottomReserved = Math.max(60, Math.floor(canvasHeight * 0.08)); // 减少底部预留空间
+  const bottomReserved = Math.max(100, Math.floor(canvasHeight * 0.08)); // 减少底部预留空间
   const availableHeight = canvasHeight - top - bottomReserved;
 
   ctx.textAlign = 'left';
@@ -306,7 +306,7 @@ function layoutAndRenderResult(result) {
     const cardH = Math.min(availableHeight * 0.75, 280);
     const cardW = Math.floor(cardH * (CARD_WIDTH / CARD_HEIGHT));
     const x = Math.floor((canvasWidth - cardW) / 2);
-    const y = top + Math.floor((availableHeight - cardH) / 3); // Move cards higher
+    const y = top + Math.floor((availableHeight - cardH) / 5); // Move cards higher
     drawCardCell(result[0], x, y, cardW, cardH, canvasWidth - padding * 2);
     return;
   }
@@ -314,11 +314,11 @@ function layoutAndRenderResult(result) {
   if (currentSpread === 'three') {
     const cols = 3;
     const gap = 12;
-    const cardH = Math.min(availableHeight * 0.7, 180);
+    const cardH = Math.min(availableHeight * 0.7, 150);
     const cardW = Math.floor(cardH * (CARD_WIDTH / CARD_HEIGHT));
     const totalW = cols * cardW + (cols - 1) * gap;
     const startX = Math.max(padding, Math.floor((canvasWidth - totalW) / 2));
-    const y = top + Math.floor((availableHeight - cardH) / 3); // Move cards higher
+    const y = top + Math.floor((availableHeight - cardH) / 5); // Move cards higher
     result.forEach((item, idx) => {
       const x = startX + idx * (cardW + gap);
       drawCardCell(item, x, y, cardW, cardH, cardW);
@@ -328,9 +328,9 @@ function layoutAndRenderResult(result) {
 
   if (currentSpread === 'five') {
     const ratio = CARD_WIDTH / CARD_HEIGHT;
-    let cardH = Math.min(availableHeight * 0.5, 200);
+    let cardH = Math.min(availableHeight * 0.4, 180);
     let cardW = Math.floor(cardH * ratio);
-    let gap = Math.max(50, Math.floor(cardW * 0.18));
+    let gap = Math.max(30, Math.floor(cardW * 0.18));
 
     const maxRowWidth = canvasWidth - padding * 2;
     const totalRow = 3 * cardW + 2 * gap;
@@ -364,7 +364,7 @@ function layoutAndRenderResult(result) {
     const ratio = CARD_WIDTH / CARD_HEIGHT;
     let cardH = Math.min(availableHeight * 0.4, 180);
     let cardW = Math.floor(cardH * ratio);
-    let gap = Math.max(18, Math.floor(cardW * 0.2));
+    let gap = Math.max(20, Math.floor(cardW * 0.2));
     let stackGap = Math.max(18, Math.floor(cardH * 0.15));
 
     const maxWidth = canvasWidth - padding * 3;
@@ -386,7 +386,7 @@ function layoutAndRenderResult(result) {
       cardW = Math.max(50, Math.floor(cardW * scale));
       cardH = Math.max(70, Math.floor(cardH * scale));
       gap = Math.max(20, Math.floor(gap * scale));
-      stackGap = Math.max(20, Math.floor(stackGap * scale));
+      stackGap = Math.max(25, Math.floor(stackGap * scale));
       // 重新计算尺寸
       totalW = (3 * cardW + 2 * gap) + cardW + gap * 2;
       totalRightH = 4 * cardH + 3 * stackGap;
@@ -413,7 +413,7 @@ function layoutAndRenderResult(result) {
     pos[4] = { x: cx0, y: cy0 - cardH - gap, r: 0 };
     pos[5] = { x: rightX, y: cy0, r: 0 };
 
-    const rightTop = top + Math.max(0, Math.floor((availableHeight - totalRightH) / 2.5)); // Move cards higher
+    const rightTop = top - Math.floor(cardH / 2); // Move cards higher
     pos[6] = { x: rightColX, y: rightTop + 0 * (cardH + stackGap), r: 0 };
     pos[7] = { x: rightColX, y: rightTop + 1 * (cardH + stackGap), r: 0 };
     pos[8] = { x: rightColX, y: rightTop + 2 * (cardH + stackGap), r: 0 };
@@ -620,14 +620,16 @@ function renderAnalysisBox(text) {
 
 function render() {
   if (!canvas || !ctx) return;
-  drawButtonArea();
+  // Clear canvas before drawing
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  // Remove drawButtonArea() - let WXML handle the background
   if (lastDraw) {
     layoutAndRenderResult(lastDraw);
   }
   // 不再在 canvas 上渲染分析框，改为显示提示文字
   // 如果正在加载，绘制加载动画
   if (isLoading) {
-    drawLoadingSpinner();
+    //drawLoadingSpinner();
   }
   // 如果解析已返回，绘制提示文字
   if (lastAnalysis && !isLoading) {
@@ -721,7 +723,7 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging:\n ' + createDetailedPrompt(cardsdraw);
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it encouraging, with some breaks and emoji , and more like human-being words:\n ' + createDetailedPrompt(cardsdraw);
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
