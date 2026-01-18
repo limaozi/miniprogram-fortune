@@ -2,15 +2,10 @@
 <view class="mbti-container">
   <view class="mbti-header">
     <text class="mbti-title">MBTI性格测试</text>
-    <text class="question-counter" wx:if="{{!isLoading}}">第 {{currentQuestion + 1}} / {{totalQuestions}} 题</text>
+    <text class="question-counter" wx:if="{{!showResult && !isLoading}}">第 {{currentQuestion + 1}} / {{totalQuestions}} 题</text>
   </view>
   
-  <!-- 加载状态 -->
-  <view class="loading-container" wx:if="{{isLoading}}">
-    <view class="loading-spinner"></view>
-    <text class="loading-text">{{loadingText}}</text>
-  </view>
-  
+  <!-- 问题和选项 -->
   <view class="question-container" wx:if="{{!showResult && !isLoading}}">
     <view class="question-card">
       <text class="question-text">{{currentQuestionData.question}}</text>
@@ -44,6 +39,15 @@
         {{currentQuestion < totalQuestions - 1 ? '下一题' : '提交测试'}}
     
       </button>
+    </view>
+  </view>
+  
+  <!-- Spinner moved to the bottom -->
+  <view class="spinner-bottom">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">{{loadingText}}</text>
     </view>
   </view>
   
@@ -115,6 +119,9 @@
         <view class="result-header">
           <text class="result-title">您的MBTI类型</text>
           <text class="swipe-hint-text-small">← 左滑返回</text>
+        </view>
+        <view class="result-header">
+          <text class="result-title">{{mbtiShortDescription}}</text>
         </view>
         <scroll-view 
           class="result-content" 
