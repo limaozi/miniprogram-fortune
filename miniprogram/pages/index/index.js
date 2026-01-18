@@ -22,7 +22,6 @@ let animationTimer = null;       // 动画定时器
 let showSwipeHint = false;       // 是否显示滑动提示
 
 // DeepSeek API 配置
-const DEEPSEEK_API_KEY = 'sk-fb3403d7e4e94fe7815646045c2ca171';
 const NVIDIA_DEEPSEEK_API_KEY = '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';
 const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
