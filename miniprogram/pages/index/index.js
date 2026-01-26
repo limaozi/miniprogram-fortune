@@ -743,7 +743,7 @@ function callDeepseek(spreadKey, drawResult) {
           'Content-Type': 'application/json'
         },
         data: {
-          model: AI_MODEL,
+          model: 'deepseek-ai/deepseek-r1',
           messages: [
             { role: 'system', content: prompt }
           ],

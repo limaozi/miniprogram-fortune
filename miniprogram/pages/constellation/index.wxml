@@ -6,6 +6,56 @@
   <view wx:if="{{!showResult}}" class="question-container">
     <view class="question-card">
       <view class="question-text">请选择你的生日</view>
+      <view style="margin-top: 30rpx; display: flex; gap: 10rpx;">
+        <picker mode="selector" range="{{years}}" bindchange="onYearChange" class="picker-wrapper">
+          <view class="picker-item">{{selectedYear || '年'}}</view>
+        </picker>
+        <picker mode="selector" range="{{months}}" bindchange="onMonthChange" class="picker-wrapper">
+          <view class="picker-item">{{selectedMonth || '月'}}</view>
+        </picker>
+        <picker mode="selector" range="{{days}}" bindchange="onDayChange" class="picker-wrapper">
+          <view class="picker-item">{{selectedDay || '日'}}</view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!showResult}}" class="question-container">
+    <view class="question-card">
+      <view class="question-text">请选择你的性别</view>
+      <view class="options-container">
+        <view class="option-item {{selectedGender === 'male' ? 'selected' : ''}}" bindtap="selectGender" data-gender="male">
+          <view class="option-indicator">
+            <view class="option-circle {{selectedGender === 'male' ? 'checked' : ''}}"></view>
+          </view>
+          <view class="option-text">男</view>
+        </view>
+        <view class="option-item {{selectedGender === 'female' ? 'selected' : ''}}" bindtap="selectGender" data-gender="female">
+          <view class="option-indicator">
+            <view class="option-circle {{selectedGender === 'female' ? 'checked' : ''}}"></view>
+          </view>
+          <view class="option-text">女</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!showResult}}" class="button-container">
+    <button class="submit-button {{selectedYear && selectedMonth && selectedDay && selectedGender ? 'active' : ''}}" bindtap="onSubmit">生成星座</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loader"></view>
+    <view class="loading-text">生成中...</view>
+  </view>
+<view class="constellation-container">
+  <view wx:if="{{!showResult}}" class="constellation-header">
+    <view class="title">星座测试</view>
+  </view>
+
+  <view wx:if="{{!showResult}}" class="question-container">
+    <view class="question-card">
+      <view class="question-text">请选择你的生日</view>
       <view style="margin-top: 10rpx;">
         <picker mode="date" value="{{selectedDate}}" start="1900-01-01" end="{{currentDate}}" bindchange="onDateChange" class="date-picker">
           <view class="picker-item">{{selectedDate || '选择生日日期'}}</view>
