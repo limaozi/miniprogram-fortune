@@ -722,7 +722,8 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it encouraging, with some breaks and emoji , and more like human-being words:\n ' + createDetailedPrompt(cardsdraw);
+
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it encouraging, with some breaks and emoji , and more like human-being words:\n ' + createDetailedPrompt;
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
@@ -741,7 +742,7 @@ function callDeepseek(spreadKey, drawResult) {
           'Content-Type': 'application/json'
         },
         data: {
-          model: 'deepseek-ai/deepseek-r1',
+          model: 'deepseek-ai/deepseek-v3.1',
           messages: [
             { role: 'system', content: prompt }
           ],
