@@ -65,6 +65,17 @@ page {
   box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.3);
 }
 
+.constellation-button {
+    background: linear-gradient(135deg, #525699 0%, #5774f5 100%);
+    color: #ffffff;
+}
+
+.constellation-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.3);
+  }
+  
+
 .button-text {
   font-family: 'PingFang SC', sans-serif;
 }

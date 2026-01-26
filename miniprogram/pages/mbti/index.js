@@ -419,7 +419,7 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
             'Content-Type': 'application/json'
           },
           data: {
-            model: 'deepseek-ai/deepseek-r1',
+            model: 'meta/llama3-70b-instruct',
             messages: [
               { role: 'system', content: prompt }
             ],

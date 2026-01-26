@@ -8,5 +8,8 @@
     <button class="home-button mbti-button" bindtap="goToMBTI">
       <text class="button-text">MBTI测试</text>
     </button>
+    <button class="home-button constellation-button" bindtap="goToConstellation">
+      <text class="button-text">星座测试</text>
+    </button>
   </view>
 </view>
