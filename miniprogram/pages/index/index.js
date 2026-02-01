@@ -21,10 +21,6 @@ let loadingAnimationFrame = 0;   // 加载动画帧数（用于旋转）
 let animationTimer = null;       // 动画定时器
 let showSwipeHint = false;       // 是否显示滑动提示
 
-// DeepSeek API 配置
-const DEEPSEEK_API_KEY = 'sk-fb3403d7e4e94fe7815646045c2ca171';
-const NVIDIA_DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
 // 常量 & 贴图信息
 const SPREAD_HINTS = {
@@ -743,7 +739,11 @@ function callDeepseek(spreadKey, drawResult) {
           'Content-Type': 'application/json'
         },
         data: {
+<<<<<<< HEAD
           model: 'deepseek-ai/deepseek-r1',
+=======
+          model: AI_MODEL,
+>>>>>>> 7c02ca5 ('constellation')
           messages: [
             { role: 'system', content: prompt }
           ],
