@@ -63,11 +63,12 @@ page {
 .picker-item {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15rpx;
-  padding: 20rpx;
+  padding: 30rpx 20rpx;
   border: 2rpx solid rgba(102, 126, 234, 0.3);
   color: #ffffff;
   text-align: center;
-  font-size: 28rpx;
+  font-size: 36rpx;
+  font-weight: 500;
 }
 
 .options-container {

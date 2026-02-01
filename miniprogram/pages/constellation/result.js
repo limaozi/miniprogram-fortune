@@ -11,7 +11,54 @@ Page({
 
     this.setData({ constellation, fortune });
   },
-
+// 计算并设置回顾页面scroll-view的高度
+updateReviewScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx)
+    const headerHeight = 150; // header本身高度
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom;
+    
+    this.setData({
+      reviewScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateReviewScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.reviewScrollHeight
+    });
+  },
+  
+  // 计算并设置结果页面scroll-view的高度
+  updateResultScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx) - 按钮区域(约 240rpx) - 按钮margin-bottom(20rpx)
+    const headerHeight = 150;
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const buttonArea = 240;
+    const buttonMarginBottom = 20;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom - buttonArea - buttonMarginBottom;
+    
+    this.setData({
+      resultScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateResultScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.resultScrollHeight
+    });
+  },
+  
   calculateConstellation(birthday) {
     const date = new Date(birthday);
     const month = date.getMonth() + 1;

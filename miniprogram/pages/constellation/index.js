@@ -1,12 +1,7 @@
-// DeepSeek API 配置
-const NVIDIA_DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-
 Page({
   data: {
-    years: Array.from({ length: 100 }, (_, i) => `${2025 - i}`),
-    months: Array.from({ length: 12 }, (_, i) => `${String(i + 1).padStart(2, '0')}`),
-    days: Array.from({ length: 31 }, (_, i) => `${String(i + 1).padStart(2, '0')}`),
+    selectedDate: '',
+    currentDate: '',
     selectedYear: '',
     selectedMonth: '',
     selectedDay: '',
@@ -17,74 +12,34 @@ Page({
     currentResultIndex: 0,
   },
 
-  onYearChange(e) {
-    this.setData({ selectedYear: this.data.years[e.detail.value] });
+  onLoad() {
+    // Set current date as the end date for picker
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    this.setData({ 
+      currentDate: `${year}-${month}-${day}`,
+      selectedDate: ''
+    });
   },
 
-  onMonthChange(e) {
-    this.setData({ selectedMonth: this.data.months[e.detail.value] });
-  },
-
-  onDayChange(e) {
-    this.setData({ selectedDay: this.data.days[e.detail.value] });
+  onDateChange(e) {
+    const date = e.detail.value;
+    const [year, month, day] = date.split('-');
+    this.setData({ 
+      selectedDate: date,
+      selectedYear: year,
+      selectedMonth: month,
+      selectedDay: day
+    });
   },
 
   selectGender(e) {
     const gender = e.currentTarget.dataset.gender;
     this.setData({ selectedGender: gender });
   },
-// 调用DeepSeek API
-callDeepseekAPI(prompt) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!wx || !wx.request) {
-          reject(new Error('小程序环境不支持'));
-          return;
-        }
 
-        wx.request({
-          url: DEEPSEEK_API_URL,
-          method: 'POST',
-          header: {
-            'Authorization': `Bearer ${NVIDIA_DEEPSEEK_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          data: {
-            model: 'deepseek-ai/deepseek-r1',
-            messages: [
-              { role: 'system', content: prompt }
-            ],
-            temperature: 0.7,
-            top_p: 0.8,
-            max_tokens: 4096,
-            stream: false
-          },
-          success: (res) => {
-            console.log('[callDeepseekAPI] API 响应:', res);
-            if (res.statusCode === 200 && res.data) {
-              const content = res.data.choices?.[0]?.message?.content || '';
-              if (content) {
-                resolve(content);
-              } else {
-                console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
-                reject(new Error('API 返回数据格式异常'));
-              }
-            } else {
-              console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
-              reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
-            }
-          },
-          fail: (err) => {
-            console.error('[callDeepseekAPI] 请求失败:', err);
-            reject(new Error('网络请求失败'));
-          }
-        });
-      } catch (e) {
-        console.error('[callDeepseekAPI] 调用出错:', e);
-        reject(e);
-      }
-    });
-  },
   onSubmit() {
     const { selectedYear, selectedMonth, selectedDay, selectedGender } = this.data;
     if (!selectedYear || !selectedMonth || !selectedDay || !selectedGender) {
@@ -98,42 +53,88 @@ callDeepseekAPI(prompt) {
     this.setData({ loading: true, showResult: true });
 
     // Call DeepSeek API to generate constellation results
-    const prompt = `根据出生日期 ${selectedYear}年${selectedMonth}月${selectedDay}日 和性别${selectedGender === 'male' ? '男' : '女'}，生成详细的星座运势分析。请包含以下内容:
-1. 星座名称和性格特征
-2. 本月整体运势
-3. 爱情运势
-4. 事业运势  
-5. 健康运势
-6. 财运运势
-7. 幸运数字和颜色
-
-请用中文详细回答，每个部分用换行符分开。`;
-this.callDeepseekAPI(prompt)
-.then(response => {
-  try {
-    // 尝试解析JSON
-    let result = null;
-    
-    // 尝试从响应中提取JSON
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      result = JSON.parse(jsonMatch[0]);
-    }
-
-    this.setData({
-      showResult: true,
-      result: result.description,
-      isLoading: false,
-      resultPage: 0 // 默认显示回顾页面
-    }, () => {
-      // 更新scroll-view高度
-      this.updateReviewScrollHeight();
-    });
-  } catch (error) {
-    console.error('解析结果失败:', error);
-  }});
+    const prompt = `Use the brithday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}，determine the type of constellation in both Chinese and Latin, seperated by a dash, and generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone. The type constellation should be in both Chinese and Latin, but the description must be written in Chinese. Only return the JSON object, no other text.`;
+    prompt 
+    console.log(prompt);
+    const app = getApp();
+    app.callDeepseekAPI(prompt)
+      .then(response => {
+        try {
+          // 尝试解析JSON
+          let result = null;
+          
+          // 尝试从响应中提取JSON
+          const jsonMatch = response.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            result = JSON.parse(jsonMatch[0]);
+          }
+          console.log('the result explanation is: ', result)
+          this.setData({
+            showResult: true,
+            con_type: result.type,
+            con_result: result.explanation,
+            isLoading: false,
+            resultPage: 0 // 默认显示回顾页面
+          }, () => {
+            // 更新scroll-view高度
+            this.updateResultScrollHeight();
+          });
+        } catch (error) {
+          console.error('解析结果失败:', error);
+        }
+      })
+      .catch(error => {
+        console.error('API调用失败:', error);
+        this.showErrorAndReset('生成星座分析失败，请重试');
+      });
   },
-
+// 计算并设置回顾页面scroll-view的高度
+updateReviewScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx)
+    const headerHeight = 150; // header本身高度
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom;
+    
+    this.setData({
+      reviewScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateReviewScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.reviewScrollHeight
+    });
+  },
+  
+  // 计算并设置结果页面scroll-view的高度
+  updateResultScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 150rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx) - 按钮区域(约 240rpx) - 按钮margin-bottom(20rpx)
+    const headerHeight = 150;
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const buttonArea = 240;
+    const buttonMarginBottom = 20;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom - buttonArea - buttonMarginBottom;
+    
+    this.setData({
+      resultScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+    
+    console.log('[updateResultScrollHeight] 设置 scroll-view 高度:', {
+      windowHeight,
+      rpxRatio,
+      scrollViewHeightRpx: this.data.resultScrollHeight
+    });
+  },
   generateMockResults(year, month, day, gender) {
     const constellations = {
       '01': '摩羯座',
@@ -188,9 +189,5 @@ this.callDeepseekAPI(prompt)
       selectedDay: '',
       selectedGender: '',
     });
-  },
-
-  onLoad() {
-    // Page load logic
   },
 });
