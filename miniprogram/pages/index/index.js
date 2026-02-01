@@ -719,8 +719,7 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it encouraging, with some breaks and emoji , and more like human-being words:\n ' + createDetailedPrompt;
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging:\n ' + createDetailedPrompt(cardsdraw);
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
