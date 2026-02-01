@@ -24,10 +24,4 @@ Page({
       url: '/pages/constellation/index',
     });
   },
-// 跳转到MBTI测试页面
-  goToConstellation() {
-    wx.navigateTo({
-      url: '/pages/constellation/index'
-    });
-  }
 });

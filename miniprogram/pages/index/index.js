@@ -1,6 +1,5 @@
 // index.js - 塔罗牌小游戏重写为小程序页面版
 const { drawThreeCards, drawOneCard, drawFiveCardsCross, drawCelticCross } = require('./tarot-data.js');
-import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from '../constants/index';
 // 通过 <canvas type="2d"> 获取 Canvas 与 Context
 let canvas = null;
 let ctx = null;
@@ -719,63 +718,21 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging:\n ' + createDetailedPrompt(cardsdraw);
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, use emoji and breaks, make it more like human-being language:\n ' + createDetailedPrompt(cardsdraw);
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
-  return new Promise((resolve, reject) => {
-    try {
-      if (!wx || !wx.request) {
-        resolve('小程序环境不支持，无法生成解析');
-        return;
-      }
-
-      wx.request({
-        url: DEEPSEEK_API_URL,
-        method: 'POST',
-        header: {
-          'Authorization': `Bearer ${NVIDIA_DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        data: {
-<<<<<<< HEAD
-          model: 'deepseek-ai/deepseek-r1',
-=======
-          model: AI_MODEL,
->>>>>>> 7c02ca5 ('constellation')
-          messages: [
-            { role: 'system', content: prompt }
-          ],
-          temperature: 0.6,
-          top_p: 0.7,
-          max_tokens: 4096,
-          stream: false  // 小程序不支持流式响应，使用非流式
-        },
-        success: (res) => {
-          console.log('[callDeepseek] API 响应:', res);
-          if (res.statusCode === 200 && res.data) {
-            const content = res.data.choices?.[0]?.message?.content || '';
-            if (content) {
-              resolve(content);
-            } else {
-              console.error('[callDeepseek] 响应中没有内容:', res.data);
-              resolve('API 返回数据格式异常，无法生成解析');
-            }
-          } else {
-            console.error('[callDeepseek] API 请求失败:', res.statusCode, res.data);
-            resolve(`API 请求失败 (状态码: ${res.statusCode})`);
-          }
-        },
-        fail: (err) => {
-          console.error('[callDeepseek] 请求失败:', err);
-          resolve('网络请求失败，无法生成解析');
-        }
-      });
-    } catch (e) {
-      console.error('[callDeepseek] 调用出错:', e);
-      resolve('调用出错，无法生成解析');
-    }
-  });
+  // 使用app.js中的callDeepseekAPI
+  const app = getApp();
+  return app.callDeepseekAPI(prompt)
+    .then(content => {
+      console.log('[callDeepseek] API 响应成功:', content);
+      return content;
+    })
+    .catch(err => {
+      console.error('[callDeepseek] API 调用失败:', err);
+      return err.message || '无法生成解析';
+    });
 }
 
 function handleTap(x, y) {

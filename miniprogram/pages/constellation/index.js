@@ -8,8 +8,13 @@ Page({
     selectedGender: '',
     loading: false,
     showResult: false,
-    results: [],
-    currentResultIndex: 0,
+    isLoading: false,
+    loadingText: "正在分析您的星座...",
+    constellationType: "",
+    constellationDescription: "",
+    resultPage: 0, // 结果页面索引：0=回顾页，1=结果页
+    reviewScrollHeight: 0, // 回顾页面scroll-view高度
+    resultScrollHeight: 0 // 结果页面scroll-view高度
   },
 
   onLoad() {
@@ -22,6 +27,10 @@ Page({
       currentDate: `${year}-${month}-${day}`,
       selectedDate: ''
     });
+    
+    // 计算scroll-view高度
+    this.updateReviewScrollHeight();
+    this.updateResultScrollHeight();
   },
 
   onDateChange(e) {
@@ -40,6 +49,23 @@ Page({
     this.setData({ selectedGender: gender });
   },
 
+  onResultSwiperChange(e) {
+    const current = e.detail.current;
+    this.setData({
+      resultPage: current
+    });
+    
+    // 如果切换到回顾页面，更新scroll-view高度
+    if (current === 0) {
+      this.updateReviewScrollHeight();
+    }
+    
+    // 如果切换到结果页面，更新scroll-view高度
+    if (current === 1) {
+      this.updateResultScrollHeight();
+    }
+  },
+
   onSubmit() {
     const { selectedYear, selectedMonth, selectedDay, selectedGender } = this.data;
     if (!selectedYear || !selectedMonth || !selectedDay || !selectedGender) {
@@ -50,12 +76,19 @@ Page({
       return;
     }
 
-    this.setData({ loading: true, showResult: true });
+    this.setData({ isLoading: true, loadingText: "正在分析您的星座..." });
 
     // Call DeepSeek API to generate constellation results
-    const prompt = `Use the brithday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}，determine the type of constellation in both Chinese and Latin, seperated by a dash, and generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone. The type constellation should be in both Chinese and Latin, but the description must be written in Chinese. Only return the JSON object, no other text.`;
-    prompt 
-    console.log(prompt);
+    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have line breaks, emoji, bullet points, and so on to make it more like response from human-being.
+
+Return format should be a JSON object:
+{
+  "type": "constellation type (e.g., 白羊座 - Aries)",
+  "description": "encouraging explanation text"
+}
+
+IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written in Chinese. Only return the JSON object, no other text.`;
+    
     const app = getApp();
     app.callDeepseekAPI(prompt)
       .then(response => {
@@ -68,19 +101,26 @@ Page({
           if (jsonMatch) {
             result = JSON.parse(jsonMatch[0]);
           }
-          console.log('the result explanation is: ', result)
+          console.log('星座分析结果:', result);
+          
+          // 验证结果
+          if (!result || !result.type || !result.description) {
+            throw new Error('结果格式不正确');
+          }
+          
           this.setData({
             showResult: true,
-            con_type: result.type,
-            con_result: result.explanation,
+            constellationType: result.type,
+            constellationDescription: result.description,
             isLoading: false,
             resultPage: 0 // 默认显示回顾页面
           }, () => {
             // 更新scroll-view高度
-            this.updateResultScrollHeight();
+            this.updateReviewScrollHeight();
           });
         } catch (error) {
           console.error('解析结果失败:', error);
+          this.showErrorAndReset('生成星座分析失败，请重试');
         }
       })
       .catch(error => {
@@ -88,8 +128,9 @@ Page({
         this.showErrorAndReset('生成星座分析失败，请重试');
       });
   },
-// 计算并设置回顾页面scroll-view的高度
-updateReviewScrollHeight() {
+  
+  // 计算并设置回顾页面scroll-view的高度
+  updateReviewScrollHeight() {
     const sys = wx.getSystemInfoSync();
     const windowHeight = sys.windowHeight || 667;
     const rpxRatio = 750 / sys.windowWidth;
@@ -135,40 +176,7 @@ updateReviewScrollHeight() {
       scrollViewHeightRpx: this.data.resultScrollHeight
     });
   },
-  generateMockResults(year, month, day, gender) {
-    const constellations = {
-      '01': '摩羯座',
-      '02': '水瓶座',
-      '03': '双鱼座',
-      '04': '白羊座',
-      '05': '金牛座',
-      '06': '双子座',
-      '07': '巨蟹座',
-      '08': '狮子座',
-      '09': '处女座',
-      '10': '天秤座',
-      '11': '天蝎座',
-      '12': '射手座',
-    };
-
-    const constellation = constellations[month] || '未知星座';
-    const genderText = gender === 'male' ? '男性' : '女性';
-
-    const mockResults = [
-      `【${constellation}${genderText}】\n\n出生日期：${year}年${month}月${day}日\n\n${constellation}是一个充满魅力和智慧的星座。${genderText}${constellation}通常具有独特的个性和强大的内心世界。`,
-      `【本月整体运势】\n\n这个月对你来说是充满机遇的一个月。你的能量达到了一个新的高度，适合进行新的尝试和突破。保持积极的心态，好运自然会降临。`,
-      `【爱情运势】\n\n感情方面，单身的你可能会有新的邂逅。有伴侣的你则会感受到爱情的温暖。不妨主动表达你的感受，增进彼此的理解。`,
-      `【事业运势】\n\n工作上展现你的才华和能力。这是一个很好的时机来推进你的项目或者寻求晋升。相信自己的实力，不要错过任何机会。`,
-      `【健康运势】\n\n保持规律的作息和适度的运动。身体状况基本良好，但要注意不要过度疲劳。多喝水，多呼吸新鲜空气。`,
-      `【财运运势】\n\n财运呈现上升趋势。可能会有意外的收入或者理财的机遇。但要谨慎投资，不要被诱惑冲昏头脑。`,
-    ];
-
-    this.setData({
-      results: mockResults,
-      loading: false,
-    });
-  },
-
+  
   showErrorAndReset(message) {
     wx.showToast({
       title: message,
@@ -176,18 +184,29 @@ updateReviewScrollHeight() {
     });
     this.setData({
       loading: false,
+      isLoading: false,
       showResult: false,
     });
   },
 
-  goBack() {
+  // 重新测试
+  restartTest() {
+    // 重置状态
     this.setData({
       showResult: false,
-      results: [],
+      constellationType: "",
+      constellationDescription: "",
+      selectedDate: '',
       selectedYear: '',
       selectedMonth: '',
       selectedDay: '',
       selectedGender: '',
+      resultPage: 0
     });
   },
+
+  // 返回首页
+  goBack() {
+    wx.navigateBack();
+  }
 });

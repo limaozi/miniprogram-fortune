@@ -1,9 +1,0 @@
-<view class="result-container">
-  <view class="title">星座结果</view>
-  <view class="result-item">
-    <text>星座：{{constellation}}</text>
-  </view>
-  <view class="result-item">
-    <text>运势：{{fortune}}</text>
-  </view>
-</view>

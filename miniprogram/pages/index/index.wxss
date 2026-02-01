@@ -99,7 +99,7 @@ page {
 /* 加载状态 */
 .loading-overlay {
   position: fixed;
-  bottom: 150rpx;
+  bottom: 100rpx;
   bottom: 100r;
   left: 50%;
   transform: translateX(-50%);

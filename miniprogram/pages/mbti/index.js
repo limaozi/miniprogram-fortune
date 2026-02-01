@@ -1,6 +1,3 @@
-// mbti.js - MBTI测试页面
-import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from '../constants/index';
-
 // Canvas相关变量
 let canvas = null;
 let ctx = null;

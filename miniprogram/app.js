@@ -1,6 +1,11 @@
 // app.js
-import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from './pages/constants/index';
-
+export const API_CONFIG = {
+    };
+  
+//export const  NVIDIA_DEEPSEEK_API_KEY = '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';
+export const  NVIDIA_DEEPSEEK_API_KEY = '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';
+export const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+export const  AI_MODEL = 'deepseek-ai/deepseek-v3.2';
 // 调用DeepSeek API
 const callDeepseekAPI = (prompt, options = {}) => {
   return new Promise((resolve, reject) => {
