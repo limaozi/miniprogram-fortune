@@ -1,6 +1,6 @@
 // index.js - 塔罗牌小游戏重写为小程序页面版
 const { drawThreeCards, drawOneCard, drawFiveCardsCross, drawCelticCross } = require('./tarot-data.js');
-
+import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from '../constants/index';
 // 通过 <canvas type="2d"> 获取 Canvas 与 Context
 let canvas = null;
 let ctx = null;
@@ -21,10 +21,6 @@ let loadingAnimationFrame = 0;   // 加载动画帧数（用于旋转）
 let animationTimer = null;       // 动画定时器
 let showSwipeHint = false;       // 是否显示滑动提示
 
-// DeepSeek API 配置
-const DEEPSEEK_API_KEY = 'sk-fb3403d7e4e94fe7815646045c2ca171';
-const NVIDIA_DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
 // 常量 & 贴图信息
 const SPREAD_HINTS = {
@@ -741,7 +737,7 @@ function callDeepseek(spreadKey, drawResult) {
           'Content-Type': 'application/json'
         },
         data: {
-          model: 'deepseek-ai/deepseek-v3.1',
+          model: AI_MODEL,
           messages: [
             { role: 'system', content: prompt }
           ],

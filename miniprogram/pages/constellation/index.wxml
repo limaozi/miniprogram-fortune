@@ -6,15 +6,9 @@
   <view wx:if="{{!showResult}}" class="question-container">
     <view class="question-card">
       <view class="question-text">请选择你的生日</view>
-      <view style="margin-top: 30rpx; display: flex; gap: 10rpx;">
-        <picker mode="selector" range="{{years}}" bindchange="onYearChange" class="picker-wrapper">
-          <view class="picker-item">{{selectedYear || '年'}}</view>
-        </picker>
-        <picker mode="selector" range="{{months}}" bindchange="onMonthChange" class="picker-wrapper">
-          <view class="picker-item">{{selectedMonth || '月'}}</view>
-        </picker>
-        <picker mode="selector" range="{{days}}" bindchange="onDayChange" class="picker-wrapper">
-          <view class="picker-item">{{selectedDay || '日'}}</view>
+      <view style="margin-top: 10rpx;">
+        <picker mode="date" value="{{selectedDate}}" start="1900-01-01" end="{{currentDate}}" bindchange="onDateChange" class="date-picker">
+          <view class="picker-item">{{selectedDate || '选择生日日期'}}</view>
         </picker>
       </view>
     </view>

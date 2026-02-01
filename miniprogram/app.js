@@ -1,5 +1,62 @@
 // app.js
+import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from './pages/constants/index';
+
+// 调用DeepSeek API
+const callDeepseekAPI = (prompt, options = {}) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!wx || !wx.request) {
+        reject(new Error('小程序环境不支持'));
+        return;
+      }
+
+      wx.request({
+        url: DEEPSEEK_API_URL,
+        method: 'POST',
+        header: {
+          'Authorization': `Bearer ${NVIDIA_DEEPSEEK_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          model: AI_MODEL,
+          messages: [
+            { role: 'system', content: prompt }
+          ],
+          temperature: 0.7,
+          top_p: 0.8,
+          max_tokens: 4096,
+          stream: false
+        },
+        success: (res) => {
+          console.log('[callDeepseekAPI] API 响应:', res);
+          if (res.statusCode === 200 && res.data) {
+            const content = res.data.choices?.[0]?.message?.content || '';
+            if (content) {
+              resolve(content);
+            } else {
+              console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
+              reject(new Error('API 返回数据格式异常'));
+            }
+          } else {
+            console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
+            reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
+          }
+        },
+        fail: (err) => {
+          console.error('[callDeepseekAPI] 请求失败:', err);
+          reject(new Error('网络请求失败'));
+        }
+      });
+    } catch (e) {
+      console.error('[callDeepseekAPI] 调用出错:', e);
+      reject(e);
+    }
+  });
+};
+
 App({
+  callDeepseekAPI: callDeepseekAPI,
+  
   onLaunch: function () {
     this.globalData = {
       // env 参数说明：
@@ -17,5 +74,5 @@ App({
         traceUser: true,
       });
     }
-  },
+  }
 });

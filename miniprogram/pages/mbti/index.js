@@ -1,8 +1,5 @@
 // mbti.js - MBTI测试页面
-
-// DeepSeek API 配置
-const NVIDIA_DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+import { NVIDIA_DEEPSEEK_API_KEY, DEEPSEEK_API_URL, AI_MODEL } from '../constants/index';
 
 // Canvas相关变量
 let canvas = null;
@@ -341,8 +338,9 @@ Page({
    - optionB: MBTI tendency for the second option
 6. make questions and options feminine
 IMPORTANT: All questions and options must be written in Chinese. Only return the JSON array, no other text.`;
-
-    this.callDeepseekAPI(prompt)
+    console.log(prompt);
+    const app = getApp();
+    app.callDeepseekAPI(prompt)
       .then(response => {
         try {
           // 尝试解析JSON
@@ -400,59 +398,6 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
           isLoading: false
         });
       });
-  },
-  
-  // 调用DeepSeek API
-  callDeepseekAPI(prompt) {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!wx || !wx.request) {
-          reject(new Error('小程序环境不支持'));
-          return;
-        }
-
-        wx.request({
-          url: DEEPSEEK_API_URL,
-          method: 'POST',
-          header: {
-            'Authorization': `Bearer ${NVIDIA_DEEPSEEK_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          data: {
-            model: 'meta/llama3-70b-instruct',
-            messages: [
-              { role: 'system', content: prompt }
-            ],
-            temperature: 0.7,
-            top_p: 0.8,
-            max_tokens: 4096,
-            stream: false
-          },
-          success: (res) => {
-            console.log('[callDeepseekAPI] API 响应:', res);
-            if (res.statusCode === 200 && res.data) {
-              const content = res.data.choices?.[0]?.message?.content || '';
-              if (content) {
-                resolve(content);
-              } else {
-                console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
-                reject(new Error('API 返回数据格式异常'));
-              }
-            } else {
-              console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
-              reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
-            }
-          },
-          fail: (err) => {
-            console.error('[callDeepseekAPI] 请求失败:', err);
-            reject(new Error('网络请求失败'));
-          }
-        });
-      } catch (e) {
-        console.error('[callDeepseekAPI] 调用出错:', e);
-        reject(e);
-      }
-    });
   },
   
   onReady() {
@@ -644,7 +589,8 @@ Requirements:
 4. the answer may have some breaks, emoji, more like how human-being represent
 IMPORTANT: The type should be in English (e.g., INTJ), but the description must be written in Chinese. Only return the JSON object, no other text.`;
 
-    this.callDeepseekAPI(prompt)
+    const app = getApp();
+    app.callDeepseekAPI(prompt)
       .then(response => {
         try {
           // 尝试解析JSON
