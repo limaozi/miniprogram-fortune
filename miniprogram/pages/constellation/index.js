@@ -1,3 +1,27 @@
+// Canvas相关变量
+let canvas = null;
+let ctx = null;
+let constellationImage = null;
+let constellationAtlas = null;
+const constellationImagePath = '/images/constellation.png';
+const constellationAtlasPath = '/images/constellation-atlas.json';
+
+// 星座类型映射：从中文名称映射到atlas中的key
+const CONSTELLATION_TYPE_MAPPING = {
+  '白羊座': 'aries',
+  '金牛座': 'taurus',
+  '双子座': 'gemini',
+  '巨蟹座': 'cancer',
+  '狮子座': 'leo',
+  '处女座': 'virgo',
+  '天秤座': 'libra',
+  '天蝎座': 'scorpio',
+  '射手座': 'sagittarius',
+  '摩羯座': 'capricorn',
+  '水瓶座': 'aquarius',
+  '双鱼座': 'pisces'
+};
+
 Page({
   data: {
     selectedDate: '',
@@ -31,8 +55,210 @@ Page({
     // 计算scroll-view高度
     this.updateReviewScrollHeight();
     this.updateResultScrollHeight();
+    
+    // 预加载星座资源
+    this.preloadConstellationResources();
   },
 
+  // 预加载星座图片和atlas数据
+  preloadConstellationResources() {
+    console.log('[preloadResources] 开始加载资源');
+    
+    // 加载JSON
+    const loadJson = () => {
+      return new Promise((resolve, reject) => {
+        console.log('[preloadResources] 加载JSON...');
+        const fs = wx.getFileSystemManager();
+        fs.readFile({
+          filePath: constellationAtlasPath,
+          encoding: 'utf-8',
+          success: (res) => {
+            try {
+              const data = JSON.parse(res.data);
+              console.log('[preloadResources] JSON加载成功');
+              resolve(data);
+            } catch (e) {
+              console.error('[preloadResources] JSON解析失败:', e);
+              reject(e);
+            }
+          },
+          fail: (err) => {
+            console.error('[preloadResources] JSON读取失败:', err);
+            reject(err);
+          }
+        });
+      });
+    };
+// 先加载JSON，然后用临时canvas加载图片
+    loadJson()
+      .then((atlas) => {
+        constellationAtlas = atlas;
+        console.log('[preloadResources] JSON加载完成，开始加载图片...');
+        
+        // 创建临时canvas用于加载图片
+        const tempCanvas = wx.createOffscreenCanvas({ type: '2d', width: 1984, height: 496 });
+        const img = tempCanvas.createImage();
+        
+        return new Promise((resolve, reject) => {
+          img.onload = () => {
+            console.log('[preloadResources] 图片加载成功:', {
+              width: img.width,
+              height: img.height,
+              naturalWidth: img.naturalWidth,
+              naturalHeight: img.naturalHeight
+            });
+            resolve(img);
+          };
+          img.onerror = (err) => {
+            console.error('[preloadResources] 图片加载失败:', err);
+            reject(err);
+          };
+          console.log('[preloadResources] 设置图片src:', constellationImagePath);
+          img.src = constellationImagePath;
+        });
+      })
+      .then((img) => {
+        constellationImage = img;
+        console.log('[preloadResources] 资源预加载完成:', {
+          atlas: !!constellationAtlas,
+          image: !!constellationImage,
+          imageWidth: constellationImage.width,
+          imageHeight: constellationImage.height
+        });
+      })
+      .catch(err => {
+        console.error('[preloadResources] 加载失败:', err);
+      });
+  },
+
+  // 初始化canvas
+  initCanvas() {
+    console.log('[initCanvas] 初始化canvas');
+    const query = wx.createSelectorQuery();
+    query.select('#constellationCanvas')
+      .fields({ node: true, size: true })
+      .exec((res) => {
+        if (!res[0] || !res[0].node) {
+          console.warn('[initCanvas] canvas不存在，延迟重试');
+          setTimeout(() => this.initCanvas(), 100);
+          return;
+        }
+        
+        const canvasNode = res[0].node;
+        const systemInfo = wx.getSystemInfoSync();
+        const dpr = systemInfo.pixelRatio;
+        const windowWidth = systemInfo.windowWidth;
+        let width = res[0].width;
+        let height = res[0].height;
+        
+        console.log('[initCanvas] 查询结果:', {
+          queryWidth: width,
+          queryHeight: height,
+          dpr: dpr,
+          windowWidth: windowWidth,
+          canvasNodeExists: !!canvasNode
+        });
+        
+        // 如果宽高为0，说明canvas还没有被布局，使用计算值
+        if (width === 0 || height === 0) {
+          console.warn('[initCanvas] Canvas尺寸为0，计算转换');
+          const rpxToPixel = windowWidth / 750;
+          width = Math.round(300 * rpxToPixel);
+          height = Math.round(300 * rpxToPixel);
+          console.log('[initCanvas] 计算得到的尺寸(px):', width, 'x', height);
+        }
+        
+        canvas = canvasNode;
+        ctx = canvasNode.getContext('2d');
+        
+        const canvasPixelWidth = width * dpr;
+        const canvasPixelHeight = height * dpr;
+        console.log('[initCanvas] 准备设置canvas分辨率:', canvasPixelWidth, 'x', canvasPixelHeight);
+        
+        canvasNode.width = canvasPixelWidth;
+        canvasNode.height = canvasPixelHeight;
+        
+        console.log('[initCanvas] 设置后检查:', {
+          canvasNodeWidth: canvasNode.width,
+          canvasNodeHeight: canvasNode.height
+        });
+        
+        if (canvasNode.width === 0 || canvasNode.height === 0) {
+          console.error('[initCanvas] WARNING: Canvas width/height仍然为0！尝试替代方案...');
+          const fallbackSize = 600;
+          canvasNode.width = fallbackSize;
+          canvasNode.height = fallbackSize;
+          console.log('[initCanvas] 使用备选值600x600');
+        }
+        
+        ctx.scale(dpr, dpr);
+        
+        console.log('[initCanvas] Canvas最终状态:', {
+          width: canvasNode.width,
+          height: canvasNode.height,
+          dpr: dpr
+        });
+        this.loadConstellationResources();
+      });
+  },
+
+  // 加载星座图片和atlas数据
+  loadConstellationResources() {
+    console.log('[loadConstellationResources] 开始加载资源, canvas=', !!canvas);
+    if (!canvas) {
+      console.warn('[loadConstellationResources] canvas不存在，无法加载');
+      return;
+    }
+    console.log('[loadConstellationResources] constellationType=', this.data.constellationType);
+    if (this.data.constellationType) {
+      if (constellationImage && constellationAtlas && canvas && ctx) {
+        console.log('[loadConstellationResources] 立即绘制图片');
+        this.drawConstellationImage(this.data.constellationType);
+      }
+    }
+  },
+
+  // 绘制星座图片
+  drawConstellationImage(constellationType) {
+    console.log('[drawConstellationImage] 开始绘制:', constellationType, 'canvas=', !!canvas, 'ctx=', !!ctx, 'image=', !!constellationImage, 'atlas=', !!constellationAtlas);
+    if (!canvas || !ctx || !constellationImage || !constellationAtlas) {
+      console.warn('[drawConstellationImage] 资源未准备好，跳过绘制');
+      return;
+    }
+    
+    // 从类型字符串中提取中文星座名
+    // 格式: "白羊座 - Aries"
+    const chineseConstellation = constellationType.split(' - ')[0];
+    const atlasKey = CONSTELLATION_TYPE_MAPPING[chineseConstellation];
+    
+    const frame = constellationAtlas.frames[atlasKey];
+    if (!frame) {
+      console.error('[drawConstellationImage] 未找到星座类型:', atlasKey, '可用类型:', Object.keys(constellationAtlas.frames));
+      return;
+    }
+    // 获取canvas显示尺寸（rpx转px）
+    const query = wx.createSelectorQuery();
+    query.select('#constellationCanvas')
+      .boundingClientRect()
+      .exec((res) => {
+        if (!res[0]) return;
+        
+        const displayWidth = res[0].width;
+        const displayHeight = res[0].width; // 保持正方形
+        
+        // 清空canvas
+        ctx.clearRect(0, 0, displayWidth, displayHeight);
+        console.log("constellation image is ", constellationImage);
+        console.log("frame.x is ", frame.x, " frame.y is ", frame.y, " frame.w is ", frame.w, " frame.h is ", frame.h, " displayWidth is ", displayWidth, " displayHeight is ", displayHeight);
+        // 绘制图片
+      ctx.drawImage(
+        constellationImage,
+        frame.x, frame.y, frame.w, frame.h,
+        0, 0, displayWidth, displayHeight
+        );
+      console.log('[drawConstellationImage] 绘制完成');
+    }); 
+  },
   onDateChange(e) {
     const date = e.detail.value;
     const [year, month, day] = date.split('-');
@@ -83,7 +309,7 @@ Page({
 
 Return format should be a JSON object:
 {
-  "type": "constellation type (e.g., 白羊座 - Aries)",
+  "type": "constellation type in Chinese and constellation type in Latin, separated by a dash  (e.g., 白羊座 - Aries)",
   "description": "encouraging explanation text"
 }
 
@@ -117,6 +343,8 @@ IMPORTANT: The type should include both Chinese and Latin names separated by a d
           }, () => {
             // 更新scroll-view高度
             this.updateReviewScrollHeight();
+            // 初始化canvas并绘制图片
+            setTimeout(() => this.initCanvas(), 100);
           });
         } catch (error) {
           console.error('解析结果失败:', error);

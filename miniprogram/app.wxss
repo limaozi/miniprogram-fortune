@@ -113,7 +113,7 @@ page {
   
   .button-container {
     margin-top: 20rpx;
-    margin-bottom: 20rpx;
+    margin-bottom: 120rpx;
     text-align: center; 
     align-items: center; 
     justify-content: center;

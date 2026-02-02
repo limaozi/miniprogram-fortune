@@ -1,5 +1,4 @@
 /** constellation.wxss **/
-
 page {
   background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
   min-height: 100vh;
@@ -200,7 +199,7 @@ page {
 }
 
 .result-type {
-  font-size: 72rpx;
+  font-size: 50rpx;
   font-weight: 700;
   color: #667eea;
   margin-bottom: 30rpx;
@@ -251,7 +250,7 @@ page {
 
 .restart-button:active,
 .back-button:active {
-  transform: scale(0.98)
+  transform: scale(0.98);
   margin-bottom: 20rpx;
   color: #667eea;
 }
@@ -261,4 +260,13 @@ page {
   color: #ffffff;
   line-height: 1.8;
   font-family: 'PingFang SC', sans-serif;
+}
+
+.constellation-canvas {
+  width: 300rpx;
+  height: 300rpx;
+  margin: 20rpx auto 30rpx auto;
+  border-radius: 20rpx;
+  overflow: hidden;
+  display: block;
 }
