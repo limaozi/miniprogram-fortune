@@ -711,6 +711,19 @@ function createDetailedPrompt(cards) {
   }).join('\n');
 }
 
+// 清理API返回的文本：移除 <think></think> 标签和以'好的'开头的段落
+function cleanAnalysisText(text) {
+  // 移除 <think></think> 标签及其内容
+  text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  
+  // 移除以'好的'开头的段落（可能以多种形式出现）
+  // 分割成段落，过滤掉以'好的'开头的段落
+  const paragraphs = text.split(/\n+/);
+  const filtered = paragraphs.filter(p => !p.trim().startsWith('好的！')).filter(p => !p.trim().startsWith('当然可以！'));
+  
+  return filtered.join('\n').trim();
+}
+
 function callDeepseek(spreadKey, drawResult) {
   const cardsdraw = (drawResult || []).map(item => ({
     id: item.card.id,
@@ -718,16 +731,17 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, use emoji and breaks, make it more like human-being language:\n ' + createDetailedPrompt(cardsdraw);
-  
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, using emoji, make it more like human-being language. The explanation need to be based on all tarots together. Do not include the text inside <think></think>: \n ' + createDetailedPrompt(cardsdraw) ;
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
   // 使用app.js中的callDeepseekAPI
   const app = getApp();
   return app.callDeepseekAPI(prompt)
     .then(content => {
-      console.log('[callDeepseek] API 响应成功:', content);
-      return content;
+      //console.log('[callDeepseek] API 响应成功:', content);
+      // 清理文本：移除 <think></think> 和以'好的'开头的段落
+      const cleanedContent = cleanAnalysisText(content);
+      return cleanedContent;
     })
     .catch(err => {
       console.error('[callDeepseek] API 调用失败:', err);
@@ -1162,11 +1176,14 @@ Page({
           }
           animationTimer = null;
         }
+        console.log('the returned text is ', text);
         lastAnalysis = text;
         // 保存到全局数据
+
         const app = getApp();
         if (app.globalData) {
-          app.globalData.lastAnalysis = text;
+            
+            app.globalData.lastAnalysis = text;
         }
         // 显示滑动提示
         showSwipeHint = true;

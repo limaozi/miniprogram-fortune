@@ -22,6 +22,138 @@ const CONSTELLATION_TYPE_MAPPING = {
   '双鱼座': 'pisces'
 };
 
+// 星座数据：包含日期范围和特性描述
+const CONSTELLATION_DATA = {
+  '白羊座': {
+    latin: 'Aries',
+    dateRange: '3月21日-4月19日',
+    traits: '勇敢、热情、积极进取、富有冒险精神',
+    description: '♈️ 白羊座的你，性格开朗热情，充满了朝气和冒险精神。你总是第一个冲上阵地的勇士，勇敢地追求自己的梦想。你的热情感染着周围的人，让人们因你而精力充沛。虽然有时候你会显得有点急躁，但这恰恰体现了你对生活的热爱。相信你的勇气和决心，会让你在人生的舞台上闪闪发光！💪✨'
+  },
+  '金牛座': {
+    latin: 'Taurus',
+    dateRange: '4月20日-5月20日',
+    traits: '稳定、踏实、有耐心、可靠',
+    description: '♉️ 金牛座的你，是一个踏实可靠的人。你有着坚定的意志和持久的耐心，无论遇到什么困难都能坚持不懈。你对生活充满热爱，懂得享受生活中的美好时光。你的稳定性和忠诚度让你成为朋友们最信赖的人。继续保持你的耐心和坚持，成功一定会眷顾你！🌟💚'
+  },
+  '双子座': {
+    latin: 'Gemini',
+    dateRange: '5月21日-6月20日',
+    traits: '聪慧、灵活、表达能力强、好奇心旺盛',
+    description: '♊️ 双子座的你，聪慧机灵，充满好奇心。你的思维灵活，反应敏捷，总能看到别人看不到的角度。你善于沟通和表达，能够轻松地与各种人相处。你的多才多艺让你在各个领域都能大放异彩。相信你的聪慧和灵活，会让你创造出属于自己的精彩人生！🧠✨'
+  },
+  '巨蟹座': {
+    latin: 'Cancer',
+    dateRange: '6月21日-7月22日',
+    traits: '温柔、体贴、情感丰富、家庭意识强',
+    description: '♋️ 巨蟹座的你，温柔善良，拥有一颗柔软的心。你非常在乎身边人的感受，是个体贴入微的朋友。你对家庭和感情的重视让你成为了一个值得依靠的人。你的情感深度和同理心是你最大的财富。坚持这份温柔和关怀，会让你的生活充满爱与温暖！❤️🏠'
+  },
+  '狮子座': {
+    latin: 'Leo',
+    dateRange: '7月23日-8月22日',
+    traits: '自信、大气、领导力强、热心',
+    description: '♌️ 狮子座的你，自信满满，充满王者气场。你天生具有领导才能，总能吸引众人的目光。你大气豁达，热情似火，能够激励和鼓舞身边的每一个人。你对生活充满热爱和期待，无论面对什么挑战都能挺起胸膛。相信你的自信和热情，会让你成为众人瞩目的焦点！👑🔥'
+  },
+  '处女座': {
+    latin: 'Virgo',
+    dateRange: '8月23日-9月22日',
+    traits: '认真、细心、有条理、追求完美',
+    description: '♍️ 处女座的你，做事认真细致，有着超人的洞察力。你追求完美，对自己和工作都有很高的要求，这让你成为了一个非常出色的人。你的条理性和责任感让你总是能够把事情处理得井井有条。你的努力和坚持一定会得到回报。相信你的专业和用心，会让你在各个领域都闪闪发光！✨🎯'
+  },
+  '天秤座': {
+    latin: 'Libra',
+    dateRange: '9月23日-10月22日',
+    traits: '优雅、公正、有品味、社交能力强',
+    description: '♎️ 天秤座的你，优雅得体，充满品味。你公正理性，总能看到事情的两面，做出明智的判断。你热爱和谐，是天生的外交官，能够轻松融入各种社交场合。你对美的追求和对平衡的渴望让你成为了一个很有魅力的人。继续发挥你的优雅和外交能力，让生活充满美好！💫✨'
+  },
+  '天蝎座': {
+    latin: 'Scorpio',
+    dateRange: '10月23日-11月21日',
+    traits: '神秘、深沉、意志坚定、有洞察力',
+    description: '♏️ 天蝎座的你，神秘而深沉，拥有超强的直觉和洞察力。你意志坚定，一旦确定目标就会全力以赴。你的专注和执着让你能够完成别人无法完成的事情。你很少表露自己，但内心充满了热情和力量。相信你的毅力和智慧，会让你创造出属于自己的传奇！💎🔥'
+  },
+  '射手座': {
+    latin: 'Sagittarius',
+    dateRange: '11月22日-12月21日',
+    traits: '乐观、热爱冒险、开放、有远见',
+    description: '♐️ 射手座的你，乐观向上，热爱冒险。你充满了对未来的憧憬和期待，总是充满能量去探索这个世界。你坦诚坦白，待人真诚，是个很好相处的人。你的远见卓识和积极心态能够感染身边的每一个人。继续保持你的热情和乐观，会让你的人生之路充满阳光！🌞🎯'
+  },
+  '摩羯座': {
+    latin: 'Capricorn',
+    dateRange: '12月22日-1月19日',
+    traits: '务实、坚持、有耐心、目标明确',
+    description: '♑️ 摩羯座的你，务实稳重，目标清晰。你有着强大的执行力和持久的耐心，一步一个脚印地走向成功。你不善言辞，但你的行动胜过千言万语。你对生活和工作的态度让你成为了一个值得信赖的人。相信你的坚持和努力，梦想一定会在不远的将来实现！🏔️💪'
+  },
+  '水瓶座': {
+    latin: 'Aquarius',
+    dateRange: '1月20日-2月18日',
+    traits: '创新、独立、理性、友好',
+    description: '♒️ 水瓶座的你，富有创新精神，独立自主。你用理性和创意看待世界，总能想到别人想不到的主意。你珍视友谊和自由，是个很好的朋友和同伴。你的与众不同让你成为了人群中的亮点。相信你的独特和创新，会让你开创属于自己的美好未来！🚀💡'
+  },
+  '双鱼座': {
+    latin: 'Pisces',
+    dateRange: '2月19日-3月20日',
+    traits: '梦幻、温情、想象力丰富、有同情心',
+    description: '♓️ 双鱼座的你，温柔梦幻，充满想象力。你敏感细腻，能够感受到别人的情感，是个很有同情心的人。你的艺术天赋和创意能力让你在各个领域都能展现不凡。你相信爱和美好，这份信念让你的生活充满诗意。继续保持你的温柔和善良，让世界因你而更加美好！🌙💜'
+  }
+};
+
+// 根据月日计算星座
+function calculateConstellation(month, day) {
+  month = parseInt(month);
+  day = parseInt(day);
+  
+  const constellations = [
+    { name: '摩羯座', start: [12, 22], end: [1, 19] },
+    { name: '水瓶座', start: [1, 20], end: [2, 18] },
+    { name: '双鱼座', start: [2, 19], end: [3, 20] },
+    { name: '白羊座', start: [3, 21], end: [4, 19] },
+    { name: '金牛座', start: [4, 20], end: [5, 20] },
+    { name: '双子座', start: [5, 21], end: [6, 20] },
+    { name: '巨蟹座', start: [6, 21], end: [7, 22] },
+    { name: '狮子座', start: [7, 23], end: [8, 22] },
+    { name: '处女座', start: [8, 23], end: [9, 22] },
+    { name: '天秤座', start: [9, 23], end: [10, 22] },
+    { name: '天蝎座', start: [10, 23], end: [11, 21] },
+    { name: '射手座', start: [11, 22], end: [12, 21] }
+  ];
+  
+  for (let constellation of constellations) {
+    const [startMonth, startDay] = constellation.start;
+    const [endMonth, endDay] = constellation.end;
+    
+    // 处理跨越年份的星座（摩羯座）
+    if (startMonth > endMonth) {
+      if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
+        return constellation.name;
+      }
+    } else {
+      if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
+        return constellation.name;
+      }
+    }
+  }
+  
+  return '白羊座'; // 默认值
+}
+
+// 生成默认的星座分析结果（当API失败时）
+function generateDefaultConstellationResult(month, day, gender) {
+  const constellationName = calculateConstellation(month, day);
+  const data = CONSTELLATION_DATA[constellationName];
+  
+  if (!data) {
+    return null;
+  }
+  
+  const result = {
+    type: `${constellationName} - ${data.latin}`,
+    description: data.description
+  };
+  
+  return result;
+}
+
 Page({
   data: {
     selectedDate: '',
@@ -305,7 +437,7 @@ Page({
     this.setData({ isLoading: true, loadingText: "正在分析您的星座..." });
 
     // Call DeepSeek API to generate constellation results
-    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have line breaks, emoji, bullet points, and so on to make it more like response from human-being.
+    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraph, emoji, bullet points, and so on to make it more like response from human-being.
 
 Return format should be a JSON object:
 {
@@ -316,7 +448,18 @@ Return format should be a JSON object:
 IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written in Chinese. Only return the JSON object, no other text.`;
     
     const app = getApp();
-    app.callDeepseekAPI(prompt)
+    
+    // 设置请求超时（30秒）
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('网络请求失败'));
+      }, 30000);
+    });
+    
+    Promise.race([
+      app.callDeepseekAPI(prompt),
+      timeoutPromise
+    ])
       .then(response => {
         try {
           // 尝试解析JSON
@@ -348,13 +491,46 @@ IMPORTANT: The type should include both Chinese and Latin names separated by a d
           });
         } catch (error) {
           console.error('解析结果失败:', error);
-          this.showErrorAndReset('生成星座分析失败，请重试');
+          // 使用默认计算的星座信息
+          this.useDefaultConstellationResult();
         }
       })
       .catch(error => {
         console.error('API调用失败:', error);
-        this.showErrorAndReset('生成星座分析失败，请重试');
+        // 使用默认计算的星座信息
+        this.useDefaultConstellationResult();
       });
+  },
+  
+  // 使用默认星座计算结果（API失败时）
+  useDefaultConstellationResult() {
+    const { selectedMonth, selectedDay, selectedGender } = this.data;
+    const result = generateDefaultConstellationResult(selectedMonth, selectedDay, selectedGender);
+    
+    if (result) {
+      console.log('使用默认星座结果:', result);
+      this.setData({
+        showResult: true,
+        constellationType: result.type,
+        constellationDescription: result.description,
+        isLoading: false,
+        resultPage: 0 // 默认显示回顾页面
+      }, () => {
+        // 更新scroll-view高度
+        this.updateReviewScrollHeight();
+        // 初始化canvas并绘制图片
+        setTimeout(() => this.initCanvas(), 100);
+      });
+      
+      // 显示提示
+      wx.showToast({
+        title: '网络连接不佳，已使用默认解析',
+        icon: 'none',
+        duration: 2000
+      });
+    } else {
+      this.showErrorAndReset('网络请求失败');
+    }
   },
   
   // 计算并设置回顾页面scroll-view的高度
