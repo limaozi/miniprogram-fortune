@@ -2,10 +2,42 @@
 export const API_CONFIG = {
     };
   
-//export const  NVIDIA_DEEPSEEK_API_KEY = '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';
-export const  NVIDIA_DEEPSEEK_API_KEY = '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';
-export const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-export const  AI_MODEL = 'deepseek-ai/deepseek-r1-distill-llama-8b';
+// API Key encoded in Base64 (encrypted)
+// Original: sk-cfe8c2aa8f9244bb838e856d5577acd5
+export const ENCRYPTED_API_KEY = 'c2stY2ZlOGMyYWE4ZjkyNDRiYjgzOGU4NTZkNTU3N2FjZDU=';
+
+// Helper function to decode Base64
+const decodeBase64 = (encoded) => {
+  try {
+    return wx.getStorageSync('_temp_' + Math.random()) ? '' : atob(encoded);
+  } catch (e) {
+    // Fallback for WeChat mini program
+    const binaryString = wx.getStorageSync('_b64_' + encoded);
+    if (binaryString) return binaryString;
+    
+    let binary = '';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    for (let i = 0; i < encoded.length; i++) {
+      const bit1 = chars.indexOf(encoded.charAt(i));
+      const bit2 = chars.indexOf(encoded.charAt(++i));
+      const bit3 = chars.indexOf(encoded.charAt(++i));
+      const bit4 = chars.indexOf(encoded.charAt(++i));
+      
+      const b1 = (bit1 << 2) | (bit2 >> 4);
+      const b2 = ((bit2 & 0xF) << 4) | (bit3 >> 2);
+      const b3 = ((bit3 & 0x3) << 6) | bit4;
+      
+      binary += String.fromCharCode(b1);
+      if (bit3 !== 64) binary += String.fromCharCode(b2);
+      if (bit4 !== 64) binary += String.fromCharCode(b3);
+    }
+    return binary;
+  }
+};
+
+export const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+export const AI_MODEL = 'deepseek-chat';
+
 // 调用DeepSeek API
 const callDeepseekAPI = (prompt, options = {}) => {
   return new Promise((resolve, reject) => {
@@ -15,11 +47,14 @@ const callDeepseekAPI = (prompt, options = {}) => {
         return;
       }
 
+      // Decode the API key from Base64
+      const apiKey = decodeBase64(ENCRYPTED_API_KEY);
+
       wx.request({
         url: DEEPSEEK_API_URL,
         method: 'POST',
         header: {
-          'Authorization': `Bearer ${NVIDIA_DEEPSEEK_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         data: {

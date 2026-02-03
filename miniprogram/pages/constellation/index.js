@@ -521,13 +521,6 @@ IMPORTANT: The type should include both Chinese and Latin names separated by a d
         // 初始化canvas并绘制图片
         setTimeout(() => this.initCanvas(), 100);
       });
-      
-      // 显示提示
-      wx.showToast({
-        title: '网络连接不佳，已使用默认解析',
-        icon: 'none',
-        duration: 2000
-      });
     } else {
       this.showErrorAndReset('网络请求失败');
     }

@@ -731,7 +731,7 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, using emoji, make it more like human-being language. The explanation need to be based on all tarots together. Do not include the text inside <think></think>: \n ' + createDetailedPrompt(cardsdraw) ;
+  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, using emoji, make it more like human-being language.\n ' + createDetailedPrompt(cardsdraw) ;
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
   // 使用app.js中的callDeepseekAPI
