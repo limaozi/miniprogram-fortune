@@ -570,14 +570,14 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
       return `问题${index + 1}：${q.question}\n选项：${q.options.join(' / ')}\n您的选择：${selectedOption}`;
     }).join('\n\n');
     
-    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate a encouraging explanation in Chinese.
+    const prompt = `Based on the following MBTI test questions and user's answers, determine the user's MBTI personality type and generate a encouraging explanation in Chinese. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style.
 
 Test questions and answers:
 ${questionsText}
 
 Requirements:
 1. Determine the user's MBTI type based on the answers (one of 16 types: INTJ, INTP, ENTJ, ENTP, INFJ, INFP, ENFJ, ENFP, ISTJ, ISFJ, ESTJ, ESFJ, ISTP, ISFP, ESTP, ESFP)
-2. Generate an encouraging explanation of 200-300 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone
+2. Generate an encouraging explanation of 100-200 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone
 3. Return format should be a JSON object:
    {
      "type": "MBTI type (e.g., INTJ)",

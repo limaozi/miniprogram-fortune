@@ -1,7 +1,9 @@
 // app.js
 export const API_CONFIG = {
     };
-  
+export const  NVIDIA_DEEPSEEK_API_KEY = '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';
+export const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+export const  AI_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-32b';
 // API Key encoded in Base64 (encrypted)
 // Original: sk-cfe8c2aa8f9244bb838e856d5577acd5
 export const ENCRYPTED_API_KEY = 'c2stY2ZlOGMyYWE4ZjkyNDRiYjgzOGU4NTZkNTU3N2FjZDU=';
@@ -35,8 +37,8 @@ const decodeBase64 = (encoded) => {
   }
 };
 
-export const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
-export const AI_MODEL = 'deepseek-chat';
+export const DEEPSEEK_API_URL_2 = 'https://api.deepseek.com/v1/chat/completions';
+export const AI_MODEL_2 = 'deepseek-chat';
 
 // 调用DeepSeek API
 const callDeepseekAPI = (prompt, options = {}) => {
@@ -47,46 +49,83 @@ const callDeepseekAPI = (prompt, options = {}) => {
         return;
       }
 
-      // Decode the API key from Base64
-      const apiKey = decodeBase64(ENCRYPTED_API_KEY);
+      let requestId = Math.random();
+      let hasResponded = false;
 
-      wx.request({
-        url: DEEPSEEK_API_URL,
-        method: 'POST',
-        header: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        data: {
-          model: AI_MODEL,
-          messages: [
-            { role: 'system', content: prompt }
-          ],
-          temperature: 0.7,
-          top_p: 0.8,
-          max_tokens: 4096,
-          stream: false
-        },
-        success: (res) => {
-          console.log('[callDeepseekAPI] API 响应:', res);
-          if (res.statusCode === 200 && res.data) {
-            const content = res.data.choices?.[0]?.message?.content || '';
-            if (content) {
-              resolve(content);
+      const makeRequest = (url, apiKey, model) => {
+        const currentRequestId = requestId;
+        
+        const timeoutTimer = setTimeout(() => {
+          if (!hasResponded && currentRequestId === requestId) {
+            hasResponded = true;
+            console.log('[callDeepseekAPI] 第一个API超时，切换到备用地址');
+            
+            // If this is the first URL, try the second one
+            if (url === DEEPSEEK_API_URL) {
+              requestId = Math.random();
+              makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
             } else {
-              console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
-              reject(new Error('API 返回数据格式异常'));
+              reject(new Error('所有API请求均超时'));
             }
-          } else {
-            console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
-            reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
           }
-        },
-        fail: (err) => {
-          console.error('[callDeepseekAPI] 请求失败:', err);
-          reject(new Error('网络请求失败'));
-        }
-      });
+        }, 20000); // 20 seconds timeout
+
+        wx.request({
+          url: url,
+          method: 'POST',
+          header: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          data: {
+            model: model,
+            messages: [
+              { role: 'system', content: prompt }
+            ],
+            temperature: 0.7,
+            top_p: 0.8,
+            max_tokens: 4096,
+            stream: false
+          },
+          success: (res) => {
+            if (!hasResponded && currentRequestId === requestId) {
+              hasResponded = true;
+              clearTimeout(timeoutTimer);
+              console.log('[callDeepseekAPI] API 响应:', res);
+              if (res.statusCode === 200 && res.data) {
+                const content = res.data.choices?.[0]?.message?.content || '';
+                if (content) {
+                  resolve(content);
+                } else {
+                  console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
+                  reject(new Error('API 返回数据格式异常'));
+                }
+              } else {
+                console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
+                reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
+              }
+            }
+          },
+          fail: (err) => {
+            if (!hasResponded && currentRequestId === requestId) {
+              hasResponded = true;
+              clearTimeout(timeoutTimer);
+              console.error('[callDeepseekAPI] 请求失败:', err);
+              
+              // If this is the first URL, try the second one
+              if (url === DEEPSEEK_API_URL) {
+                console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
+                requestId = Math.random();
+                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+              } else {
+                reject(new Error('网络请求失败'));
+              }
+            }
+          }
+        });
+      };
+
+      makeRequest(DEEPSEEK_API_URL, NVIDIA_DEEPSEEK_API_KEY, AI_MODEL);
     } catch (e) {
       console.error('[callDeepseekAPI] 调用出错:', e);
       reject(e);

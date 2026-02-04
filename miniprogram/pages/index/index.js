@@ -57,6 +57,39 @@ let boxHeightOffset = 0; // 正值表示高度增加
 let isDraggingBox = false; // 是否正在拖拽分析框（而不是滚动内容）
 let dragStartHeight = 0; // 开始拖拽时的分析框高度
 
+// 过滤 API 响应文本
+// 1. 移除 </think> 及之前的所有内容
+// 2. 移除全是英文的段落
+function filterAnalysisText(text) {
+  if (!text) return text;
+
+  // 第一步：移除 </think> 及之前的所有内容
+  const thinkIndex = text.indexOf('</think>');
+  if (thinkIndex !== -1) {
+    text = text.substring(thinkIndex + 8); // 8 是 '</think>'.length
+  }
+
+  // 第二步：移除全是英文的段落
+  // 将文本按段落分割（以换行符或句号等分割）
+  const paragraphs = text.split(/(\n\n+)/); // 保留分隔符
+  const filteredParagraphs = paragraphs.map((para) => {
+    if (para.match(/^\n+$/)) return para; // 保留空行分隔符
+    
+    // 检查段落是否是全英文（只包含英文字母、数字、标点等，没有中文）
+    const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/g.test(para);
+    
+    if (!hasChinese && para.trim().length > 0) {
+      // 这个段落全是英文，移除它
+      return '';
+    }
+    return para;
+  });
+
+  // 拼接回来，并清理多余的空行
+  const result = filteredParagraphs.join('').replace(/\n\n\n+/g, '\n\n').trim();
+  return result;
+}
+
 // ----------------- 绘制 UI -----------------
 
 function drawButtonArea() {
@@ -711,19 +744,6 @@ function createDetailedPrompt(cards) {
   }).join('\n');
 }
 
-// 清理API返回的文本：移除 <think></think> 标签和以'好的'开头的段落
-function cleanAnalysisText(text) {
-  // 移除 <think></think> 标签及其内容
-  text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  
-  // 移除以'好的'开头的段落（可能以多种形式出现）
-  // 分割成段落，过滤掉以'好的'开头的段落
-  const paragraphs = text.split(/\n+/);
-  const filtered = paragraphs.filter(p => !p.trim().startsWith('好的！')).filter(p => !p.trim().startsWith('当然可以！'));
-  
-  return filtered.join('\n').trim();
-}
-
 function callDeepseek(spreadKey, drawResult) {
   const cardsdraw = (drawResult || []).map(item => ({
     id: item.card.id,
@@ -731,17 +751,18 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-  const prompt = 'Give me a explanation in Chinese of those tarots, make it feminine and encouraging, using emoji, make it more like human-being language.\n ' + createDetailedPrompt(cardsdraw) ;
+  
+  // Create a prompt that analyzes all cards combined together
+  const prompt = `Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 100-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.\n\nCards:\n${createDetailedPrompt(cardsdraw)}\n\nPlease provide an integrated interpretation of all these cards together:`;
+  
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
   // 使用app.js中的callDeepseekAPI
   const app = getApp();
   return app.callDeepseekAPI(prompt)
     .then(content => {
-      //console.log('[callDeepseek] API 响应成功:', content);
-      // 清理文本：移除 <think></think> 和以'好的'开头的段落
-      const cleanedContent = cleanAnalysisText(content);
-      return cleanedContent;
+      console.log('[callDeepseek] API 响应成功:', content);
+      return content;
     })
     .catch(err => {
       console.error('[callDeepseek] API 调用失败:', err);
@@ -765,6 +786,49 @@ Page({
     selectedSpread: null, // 当前选中的牌阵
     isLoading: false, // 是否正在加载
     loadingText: '正在生成解析...' // 加载提示文字
+  },
+  
+  // 页面加载时清空画布
+  onLoad() {
+    console.log('[onLoad] 页面加载，清空画布');
+    lastDraw = null;
+    lastAnalysis = '';
+    isLoading = false;
+    showSwipeHint = false;
+    currentSpread = null;
+    lastSpread = null;
+    analysisScroll = 0;
+    boxHeightOffset = 0;
+    this.setData({
+      currentPage: 0,
+      showSwipeHint: false,
+      analysisText: '',
+      selectedSpread: null,
+      isLoading: false
+    });
+  },
+  
+  // 页面每次显示时清空画布
+  onShow() {
+    console.log('[onShow] 页面显示，清空画布');
+    lastDraw = null;
+    lastAnalysis = '';
+    isLoading = false;
+    showSwipeHint = false;
+    currentSpread = null;
+    lastSpread = null;
+    analysisScroll = 0;
+    boxHeightOffset = 0;
+    this.setData({
+      currentPage: 0,
+      showSwipeHint: false,
+      analysisText: '',
+      selectedSpread: null,
+      isLoading: false
+    });
+    if (canvas && ctx) {
+      render();
+    }
   },
   
   // 计算并设置 scroll-view 的高度
@@ -1176,14 +1240,13 @@ Page({
           }
           animationTimer = null;
         }
-        console.log('the returned text is ', text);
+        // 过滤 API 响应文本
+        text = filterAnalysisText(text);
         lastAnalysis = text;
         // 保存到全局数据
-
         const app = getApp();
         if (app.globalData) {
-            
-            app.globalData.lastAnalysis = text;
+          app.globalData.lastAnalysis = text;
         }
         // 显示滑动提示
         showSwipeHint = true;
