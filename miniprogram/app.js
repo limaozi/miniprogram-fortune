@@ -63,6 +63,7 @@ const callDeepseekAPI = (prompt, options = {}) => {
             // If this is the first URL, try the second one
             if (url === DEEPSEEK_API_URL) {
               requestId = Math.random();
+              hasResponded = false; // Reset for the retry attempt
               makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
             } else {
               reject(new Error('所有API请求均超时'));
