@@ -5,8 +5,7 @@ export const  NVIDIA_DEEPSEEK_API_KEY = 'nvapi-XFSZpetVOzfgjtn1xccH4xLIGFZ6whxo7
 export const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 export const  AI_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-32b';
 // API Key encoded in Base64 (encrypted)
-// Original: sk-cfe8c2aa8f9244bb838e856d5577acd5
-export const ENCRYPTED_API_KEY = 'c2stY2ZlOGMyYWE4ZjkyNDRiYjgzOGU4NTZkNTU3N2FjZDU=';
+
 
 // Helper function to decode Base64
 const decodeBase64 = (encoded) => {
