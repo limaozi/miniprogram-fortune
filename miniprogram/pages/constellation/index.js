@@ -437,7 +437,7 @@ Page({
     this.setData({ isLoading: true, loadingText: "正在分析您的星座..." });
 
     // Call DeepSeek API to generate constellation results
-    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 100-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraph, emoji, bullet points, and so on to make it more like response from human-being.
+    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraph, emoji, bullet points, and so on to make it more like response from human-being.
 
 Return format should be a JSON object:
 {

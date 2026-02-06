@@ -20,10 +20,13 @@ button::after{
 
 
 page {
-  background: #f6f6f6;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  font-family: 'PingFang SC', sans-serif;
+  color: #ffffff;
 }
 .question-container {
     flex: 1;
@@ -188,4 +191,37 @@ page {
   align-items: center;
 }
 
-  
+.swipe-hint-text-small {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.restart-button,
+.back-button {
+  width: 100%;
+  height: 100rpx;
+  border-radius: 50rpx;
+  border: none;
+  font-size: 32rpx;
+  font-weight: 500;
+  box-sizing: border-box;
+  line-height: 100rpx;
+  padding: 0;
+  margin: 0;
+}
+
+.restart-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.restart-button:active,
+.back-button:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}

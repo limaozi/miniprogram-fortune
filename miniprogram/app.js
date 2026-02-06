@@ -68,7 +68,7 @@ const callDeepseekAPI = (prompt, options = {}) => {
               reject(new Error('所有API请求均超时'));
             }
           }
-        }, 20000); // 20 seconds timeout
+        }, 30000); // 20 seconds timeout
 
         wx.request({
           url: url,

@@ -78,4 +78,3 @@ function drawCelticCross() {
 }
 
 module.exports = { TAROT_CARDS, drawThreeCards, drawOneCard, drawFiveCardsCross, drawCelticCross };
-

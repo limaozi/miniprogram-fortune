@@ -9,7 +9,7 @@ Page({
   // 跳转到塔罗牌页面
   goToTarot() {
     wx.navigateTo({
-      url: '/pages/index/index'
+      url: '/pages/tarot/index/index'
     });
   },
   
@@ -22,6 +22,11 @@ Page({
   goToConstellation() {
     wx.navigateTo({
       url: '/pages/constellation/index',
+    });
+  },
+  goToStyle() {
+    wx.navigateTo({
+      url: '/pages/style/index',
     });
   },
 });

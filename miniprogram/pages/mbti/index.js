@@ -577,7 +577,7 @@ ${questionsText}
 
 Requirements:
 1. Determine the user's MBTI type based on the answers (one of 16 types: INTJ, INTP, ENTJ, ENTP, INFJ, INFP, ENFJ, ENFP, ISTJ, ISFJ, ESTJ, ESFJ, ISTP, ISFP, ESTP, ESFP)
-2. Generate an encouraging explanation of 100-200 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone
+2. Generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this personality type in a warm, positive, and encouraging tone
 3. Return format should be a JSON object:
    {
      "type": "MBTI type (e.g., INTJ)",

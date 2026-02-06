@@ -1,0 +1,87 @@
+<view class="style-container">
+  <view class="style-header">
+    <text class="style-title">穿搭建议测试</text>
+  </view>
+  <view class="question-container" wx:if="{{!showResult && !isLoading}}">
+    <view class="question-card">
+      <text class="question-text">{{currentQuestionData.question}}</text>
+    </view>
+    <view class="options-container">
+      <view 
+        class="option-item {{selectedOption === idx ? 'selected' : ''}}"
+        wx:for="{{currentOptionsDecorated}}"
+        wx:key="index"
+        wx:for-index="idx"
+        bindtap="selectOption"
+        data-index="{{idx}}"
+      >
+        <view class="option-indicator">
+          <view class="option-circle {{selectedOption === idx ? 'checked' : ''}}">
+            <view class="option-checkmark" wx:if="{{selectedOption === idx}}"></view>
+          </view>
+        </view>
+        <view class="option-swatch" wx:if="{{item.bg}}" style="background: {{item.bg}}"></view>
+        <text class="option-text">{{item.text}}</text>
+      </view>
+    </view>
+    <view class="button-container">
+      <button 
+        class="submit-button {{selectedOption !== null ? 'active' : ''}}"
+        bindtap="nextQuestion"
+        disabled="{{selectedOption === null}}"
+      >{{currentQuestion < totalQuestions - 1 ? '下一题' : '提交'}}</button>
+    </view>
+  </view>
+  <view class="spinner-bottom">
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">{{loadingText}}</text>
+    </view>
+  </view>
+  <swiper class="result-swiper" wx:if="{{showResult}}" current="{{resultPage}}" bindchange="onResultSwiperChange" style="height: {{swiperHeight}}rpx;">
+    <swiper-item>
+      <scroll-view class="review-container" scroll-y="true" style="height: {{reviewScrollHeight}}rpx;">
+        <view class="review-header">
+          <text class="review-title">回顾你的答案</text>
+          <text class="swipe-hint-text-small">右滑查看结果 →</text>
+        </view>
+        <view class="review-content">
+          <view class="review-list">
+            <block wx:for="{{answers}}" wx:key="index">
+              <view class="review-item">
+                <view class="question-card">
+                  <text class="question-text">{{item.question}}</text>
+                </view>
+                <view class="review-options">
+                  <view class="review-option">
+                    <view class="option-indicator">
+                      <view class="option-circle checked">
+                        <view class="option-checkmark"></view>
+                      </view>
+                    </view>
+                    <view class="option-swatch" wx:if="{{item.bg}}" style="background: {{item.bg}}"></view>
+                    <text class="option-text">{{item.choice}}</text>
+                  </view>
+                </view>
+              </view>
+            </block>
+          </view>
+        </view>
+      </scroll-view>
+    </swiper-item>
+    <swiper-item>
+      <scroll-view class="result-container" scroll-y="true" style="height: {{resultScrollHeight}}rpx;">
+        <view class="result-card">
+          <text class="result-title">你的穿搭建议</text>
+        </view>
+        <view class="result-card">
+          <text class="result-text">{{styleSuggestion}}</text>
+        </view>
+        <view class="result-buttons">
+          <button class="restart-button" bindtap="restartTest">重新测试</button>
+          <button class="back-button" bindtap="goBack">返回首页</button>
+        </view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+</view>

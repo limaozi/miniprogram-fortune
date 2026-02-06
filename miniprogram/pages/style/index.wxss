@@ -1,0 +1,124 @@
+.style-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+}
+.style-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+  padding-top: 40rpx;
+}
+.style-title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10rpx;
+}
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+.submit-button {
+  width: 60%;
+  height: 90rpx;
+  border-radius: 45rpx;
+  border: none;
+  font-size: 32rpx;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.submit-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+.result-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.result-card {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.result-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+.result-text {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #ffffff;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.review-container {
+  width: 100%;
+  box-sizing: border-box;
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+.review-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+.review-content {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 20rpx;
+  padding: 20rpx;
+}
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.review-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.review-option {
+  display: flex;
+  align-items: center;
+}
+
+.option-swatch {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 8rpx;
+  margin: 0 16rpx 0 8rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.15);
+}

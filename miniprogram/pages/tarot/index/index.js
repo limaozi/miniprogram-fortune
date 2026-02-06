@@ -586,62 +586,32 @@ function renderAnalysisBox(text) {
     const trackY = boxY + 8;
     const trackH = visibleH;
     
-    // 滚动条轨道（更明显的背景）
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    const thumbMinH = 20;
+    const thumbH = Math.max(thumbMinH, Math.floor(visibleH * visibleH / contentH));
+    const maxScroll = Math.max(0, contentH - visibleH);
+    const scrollRatio = maxScroll > 0 ? analysisScroll / maxScroll : 0;
+    const thumbY = trackY + Math.floor((trackH - thumbH) * scrollRatio);
+    
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fillRect(trackX, trackY, trackW, trackH);
-    // 滚动条轨道边框
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(trackX, trackY, trackW, trackH);
-
-    // 滚动条滑块
-    const thumbH = Math.max(30, Math.floor(trackH * (visibleH / contentH)));
-    const maxScroll = contentH - visibleH;
-    const thumbY = trackY + Math.floor((analysisScroll / Math.max(1, maxScroll)) * (trackH - thumbH));
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillRect(trackX, thumbY, trackW, thumbH);
     
-    // 滑块主体
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillRect(trackX + 1, thumbY, trackW - 2, thumbH);
-    // 滑块边框
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(trackX + 1, thumbY, trackW - 2, thumbH);
-    
-    // 滑块内部装饰线
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    const lineX = trackX + trackW / 2;
-    ctx.fillRect(lineX - 1, thumbY + 4, 2, thumbH - 8);
-    
-    // 保存滚动条信息用于点击检测
     scrollbarInfo = {
       trackX, trackY, trackW, trackH,
       thumbY, thumbH,
-      contentH, visibleH, maxScroll
+      contentH, visibleH,
+      maxScroll
     };
-    
-    console.log('[renderAnalysisBox] 滚动条信息:', {
-      trackX, trackY, trackW, trackH,
-      thumbY, thumbH,
-      contentH, visibleH, maxScroll,
-      currentScroll: analysisScroll
-    });
   }
 
-  renderAnalysisBox._box = { 
+  // 保存用于触摸事件的盒子信息
+  renderAnalysisBox._box = {
     x: boxX, y: boxY, w: boxW, h: boxH,
-    scrollbar: scrollbarInfo,
-    handle: handleInfo, // 拖拽手柄区域
-    baseH: baseBoxH, // 基础高度
-    heightOffset: boxHeightOffset // 高度偏移
-  };
-  
-  console.log('[renderAnalysisBox] 分析框区域:', {
-    x: boxX, y: boxY, w: boxW, h: boxH,
+    handleX, handleY, handleW: handleWidth, handleH: handleHeight,
     baseH: baseBoxH,
-    heightOffset: boxHeightOffset,
-    hasScrollbar: !!scrollbarInfo,
-    handleArea: handleInfo
-  });
+    scrollbar: scrollbarInfo
+  };
 }
 
 // ----------------- 总渲染入口 -----------------
@@ -666,76 +636,6 @@ function render() {
   }
 }
 
-// 绘制滑动提示文字
-function drawSwipeHint() {
-  if (!canvas || !ctx) return;
-  
-  // 在菜单下方绘制提示文字
-  const padding = Math.max(12, Math.floor(canvasWidth * 0.037));
-  const hintY = canvasHeight - 200; // 菜单下方位置
-  const hintText = '← 向左滑动，看解析';
-  
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-  ctx.font = `18px ${FONT_FAMILY}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(hintText, canvasWidth / 2, hintY);
-}
-
-// 绘制简洁的加载旋转动画
-function drawLoadingSpinner() {
-  if (!canvas || !ctx) return;
-  
-  // 在分析框位置显示加载动画
-  const padding = Math.max(10, Math.floor(canvasWidth * 0.037));
-  const boxW = canvasWidth - padding * 2;
-  const baseBoxH = Math.min(Math.floor(canvasHeight * 0.4), Math.floor(canvasHeight / 2));
-  const boxH = baseBoxH + boxHeightOffset; // 使用实际高度
-  const boxX = padding;
-  const boxY = canvasHeight - boxH - padding; // 根据实际高度计算 Y 位置
-  
-  // 计算中心位置
-  const centerX = boxX + boxW / 2;
-  const centerY = boxY + boxH / 2;
-  const radius = Math.min(20, Math.floor(boxW * 0.05)); // 旋转圆半径
-  
-  ctx.save();
-  
-  // 绘制旋转的圆环（简洁的单色圆环）
-  const angle = (loadingAnimationFrame * 0.15) % (Math.PI * 2); // 旋转角度，0.15 控制速度
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
-  
-  // 绘制一个不完整的圆环（270度弧，留一个缺口）
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, angle, angle + Math.PI * 1.5, false);
-  ctx.stroke();
-  
-  ctx.restore();
-  
-  // 更新动画帧
-  loadingAnimationFrame++;
-  
-  // 如果还在加载，继续动画（使用 requestAnimationFrame 或 setTimeout）
-  if (isLoading) {
-    if (animationTimer) {
-      clearTimeout(animationTimer);
-    }
-    // 使用 wx.requestAnimationFrame 如果可用，否则使用 setTimeout
-    if (typeof wx !== 'undefined' && wx.requestAnimationFrame) {
-      const frameId = wx.requestAnimationFrame(() => {
-        render();
-      });
-      animationTimer = frameId;
-    } else {
-      animationTimer = setTimeout(() => {
-        render();
-      }, 16); // 约 60fps
-    }
-  }
-}
-
 // ----------------- 抽牌 & 云函数 -----------------
 
 function createDetailedPrompt(cards) {
@@ -753,7 +653,7 @@ function callDeepseek(spreadKey, drawResult) {
   }));
   
   // Create a prompt that analyzes all cards combined together
-  const prompt = `Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 100-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.\n\nCards:\n${createDetailedPrompt(cardsdraw)}\n\nPlease provide an integrated interpretation of all these cards together:`;
+  const prompt = `Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.\n\nCards:\n${createDetailedPrompt(cardsdraw)}\n\nPlease provide an integrated interpretation of all these cards together:`;
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
@@ -788,233 +688,112 @@ Page({
     loadingText: '正在生成解析...' // 加载提示文字
   },
   
-  // 页面加载时清空画布
   onLoad() {
-    console.log('[onLoad] 页面加载，清空画布');
+    // 初始化状态
     lastDraw = null;
+    currentSpread = null;
+    lastSpread = null;
     lastAnalysis = '';
     isLoading = false;
     showSwipeHint = false;
-    currentSpread = null;
-    lastSpread = null;
-    analysisScroll = 0;
-    boxHeightOffset = 0;
     this.setData({
       currentPage: 0,
       showSwipeHint: false,
       analysisText: '',
+      scrollViewHeight: Math.floor(wx.getSystemInfoSync().windowHeight * 0.38 * 2), // 转为 rpx
       selectedSpread: null,
       isLoading: false
     });
-  },
-  
-  // 页面每次显示时清空画布
-  onShow() {
-    console.log('[onShow] 页面显示，清空画布');
-    lastDraw = null;
-    lastAnalysis = '';
-    isLoading = false;
-    showSwipeHint = false;
-    currentSpread = null;
-    lastSpread = null;
-    analysisScroll = 0;
-    boxHeightOffset = 0;
-    this.setData({
-      currentPage: 0,
-      showSwipeHint: false,
-      analysisText: '',
-      selectedSpread: null,
-      isLoading: false
-    });
-    if (canvas && ctx) {
-      render();
-    }
-  },
-  
-  // 计算并设置 scroll-view 的高度
-  updateScrollViewHeight() {
-    const sys = wx.getSystemInfoSync();
-    const windowHeight = sys.windowHeight || 667;
-    const rpxRatio = 750 / sys.windowWidth; // rpx 转换比例
-    // 计算可用高度：窗口高度 - 头部高度(约 200rpx) - padding(约 80rpx) - 按钮区域(约 280rpx)
-    const headerHeight = 200; // rpx
-    const padding = 80; // rpx
-    const buttonArea = 280; // rpx (按钮高度 + gap + padding)
-    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - padding - buttonArea;
-    
-    this.setData({
-      scrollViewHeight: Math.max(300, scrollViewHeightRpx) // 最小高度 300rpx
-    });
-    
-    console.log('[updateScrollViewHeight] 设置 scroll-view 高度:', {
-      windowHeight,
-      rpxRatio,
-      scrollViewHeightRpx: this.data.scrollViewHeight
-    });
-  },
-  
-  // 滑动切换页面
-  onSwiperChange(e) {
-    const current = e.detail.current;
-    this.setData({
-      currentPage: current,
-      showSwipeHint: false // 切换页面后隐藏提示
-    });
-    console.log('[onSwiperChange] 切换到页面:', current);
-    
-    // 如果切换到解析页面，更新 scroll-view 高度
-    if (current === 1) {
-      this.updateScrollViewHeight();
-    }
-    
-    // 如果切换回抽卡页面，重新渲染
-    if (current === 0) {
-      render();
-    }
   },
 
   onReady() {
-    const sys = wx.getSystemInfoSync();
-    console.log('[onReady] 系统信息:', {
-      windowWidth: sys.windowWidth,
-      windowHeight: sys.windowHeight,
-      pixelRatio: sys.pixelRatio,
-      screenWidth: sys.screenWidth,
-      screenHeight: sys.screenHeight
-    });
-
-    // 先获取 canvas 节点
-    const query = wx.createSelectorQuery();
-    query
+    wx.createSelectorQuery()
       .select('#tarotCanvas')
-      .boundingClientRect()
+      .node()
       .exec((res) => {
-        const rect = res && res[0];
-        if (!rect) {
-          console.error('无法获取 canvas 尺寸');
-          return;
-        }
+        if (!res || !res[0] || !res[0].node) return;
+        canvas = res[0].node;
+        ctx = canvas.getContext('2d');
         
-        // 再次查询获取node
-        const query2 = wx.createSelectorQuery();
-        query2
-          .select('#tarotCanvas')
-          .node()
-          .exec((res2) => {
-            const canvasNode = res2 && res2[0] && res2[0].node;
-            
-            if (!canvasNode) {
-              console.error('无法获取 canvas 节点');
-              return;
-            }
-            
-            canvas = canvasNode;
-            ctx = canvas.getContext('2d');
-
-            // 使用canvas的实际显示尺寸（px单位，不是rpx）
-            canvasWidth = rect.width || sys.windowWidth || 375;
-            canvasHeight = rect.height || sys.windowHeight || 667;
-            console.log('[onReady] Canvas 显示尺寸:', { canvasWidth, canvasHeight });
-            
-            const dpr = sys.pixelRatio || 1;
-            // 设置canvas的物理尺寸（像素）
-            canvas.width = canvasWidth * dpr;
-            canvas.height = canvasHeight * dpr;
-            // 缩放context以匹配逻辑尺寸
-            ctx.scale(dpr, dpr);
-            
-            console.log('[onReady] Canvas 设置:', {
-              logicalSize: { width: canvasWidth, height: canvasHeight },
-              physicalSize: { width: canvas.width, height: canvas.height },
-              dpr,
-              displaySize: { width: rect.width, height: rect.height }
-            });
-
-            loadAtlas()
-              .catch(err => {
-                console.log('Atlas 加载失败：', err);
-              })
-              .finally(() => {
-                render();
-              });
-          });
+        // 设置实际像素尺寸
+        const sysInfo = wx.getSystemInfoSync();
+        const pixelRatio = sysInfo.pixelRatio || 1;
+        const width = sysInfo.windowWidth;
+        const height = sysInfo.windowHeight;
+        
+        // Canvas 逻辑尺寸：宽度为窗口宽度，高度为窗口高度减去菜单区域
+        const menuHeight = Math.floor(height * 0.25); // 菜单大约占 25% 的高度
+        canvasWidth = Math.floor(width);
+        canvasHeight = Math.floor(height - menuHeight);
+        
+        // 物理像素尺寸（用于实际绘制）
+        canvas.width = Math.floor(canvasWidth * pixelRatio);
+        canvas.height = Math.floor(canvasHeight * pixelRatio);
+        ctx.scale(pixelRatio, pixelRatio);
+        
+        loadAtlas().then(() => {
+          render();
+        });
       });
-    
-    // 初始化 scroll-view 高度
-    this.updateScrollViewHeight();
   },
 
-  // 触摸开始：判断是否落在解析框中，用于滚动
+  onSwiperChange(e) {
+    const current = e.detail.current;
+    this.setData({ currentPage: current });
+  },
+  
+  // 触摸开始：菜单 hover + 解析框滚动 + 分析框拖拽
   onCanvasTouchStart(e) {
-    console.log('[TouchStart] 原始事件:', e);
-    console.log('[TouchStart] e.detail:', e.detail);
-    console.log('[TouchStart] e.touches:', e.touches);
-    
     // 小程序 canvas 2d 触摸事件坐标获取
-    // 优先使用 e.detail，如果没有则使用 e.touches[0]
     let x, y;
     if (e.detail && e.detail.x !== undefined) {
       x = e.detail.x;
       y = e.detail.y;
-      console.log('[TouchStart] 使用 e.detail 坐标:', x, y);
     } else if (e.touches && e.touches[0]) {
       x = e.touches[0].x;
       y = e.touches[0].y;
-      console.log('[TouchStart] 使用 e.touches[0] 坐标:', x, y);
     } else {
-      console.log('[TouchStart] 无法获取坐标，事件对象:', e);
       return;
     }
     
-    if (x === undefined || y === undefined) {
-      console.log('[TouchStart] 坐标无效:', { x, y });
-      return;
+    if (x === undefined || y === undefined) return;
+
+    // 菜单 hover 检测
+    let hover = null;
+    for (let i = 0; i < menuButtons.length; i++) {
+      const b = menuButtons[i];
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        hover = b.key;
+        break;
+      }
     }
-    
+    if (hover !== lastHoverKey) {
+      lastHoverKey = hover;
+      render();
+    }
+
+    // 拖拽手柄检测（用于拉高分析框）
     const box = renderAnalysisBox._box;
-    if (!box) {
-      console.log('[TouchStart] 分析框未初始化');
-      return;
-    }
-    
-    console.log('[TouchStart] 触摸坐标:', { x, y });
-    console.log('[TouchStart] 分析框区域:', { x: box.x, y: box.y, w: box.w, h: box.h });
-    
-    // 优先检查是否点击拖拽手柄（三个点）
-    if (box.handle) {
-      const handle = box.handle;
-      console.log('[TouchStart] 拖拽手柄区域:', {
-        x: handle.x, y: handle.y, w: handle.w, h: handle.h
-      });
-      
-      if (x >= handle.x && x <= handle.x + handle.w && 
-          y >= handle.y && y <= handle.y + handle.h) {
-        console.log('[TouchStart] 点击拖拽手柄，开始拖拽拉高分析框');
+    if (box) {
+      const hx = box.handleX;
+      const hy = box.handleY;
+      const hw = box.handleW;
+      const hh = box.handleH;
+      if (x >= hx && x <= hx + hw && y >= hy && y <= hy + hh) {
         isDraggingBox = true;
-        dragStartHeight = box.h; // 记录开始拖拽时的高度
         touchStartY = y;
+        dragStartHeight = box.baseH + boxHeightOffset;
         return;
       }
     }
-    
-    // 检查是否点击滚动条
-    if (box.scrollbar) {
+
+    if (box && box.scrollbar) {
       const sb = box.scrollbar;
-      console.log('[TouchStart] 滚动条区域:', {
-        trackX: sb.trackX, trackY: sb.trackY,
-        trackW: sb.trackW, trackH: sb.trackH
-      });
-      
       if (x >= sb.trackX && x <= sb.trackX + sb.trackW && 
           y >= sb.trackY && y <= sb.trackY + sb.trackH) {
-        console.log('[TouchStart] 点击滚动条，跳转位置');
-        // 点击滚动条：跳转到对应位置
         const relativeY = y - sb.trackY;
         const scrollRatio = relativeY / sb.trackH;
         analysisScroll = Math.min(sb.maxScroll, Math.max(0, scrollRatio * sb.maxScroll));
-        console.log('[TouchStart] 滚动位置:', {
-          relativeY, scrollRatio, analysisScroll, maxScroll: sb.maxScroll
-        });
         clampAnalysisScroll(sb.visibleH);
         render();
         return;
@@ -1023,15 +802,9 @@ Page({
     
     // 检查是否在分析框内（用于拖拽滚动内容）
     if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
-      console.log('[TouchStart] 在分析框内，开始拖拽滚动内容');
       isTouchingAnalysis = true;
       touchStartY = y;
       touchStartScroll = analysisScroll;
-      console.log('[TouchStart] 拖拽状态:', {
-        isTouchingAnalysis, touchStartY, touchStartScroll, currentScroll: analysisScroll
-      });
-    } else {
-      console.log('[TouchStart] 不在分析框内');
     }
   },
 
@@ -1061,7 +834,6 @@ Page({
       }
     }
     if (hover !== lastHoverKey) {
-      console.log('[TouchMove] 菜单 hover 变化:', { from: lastHoverKey, to: hover });
       lastHoverKey = hover;
       render();
     }
@@ -1071,17 +843,9 @@ Page({
       const dy = y - touchStartY;
       const box = renderAnalysisBox._box;
       if (box && box.baseH !== undefined) {
-        // 向上拖拽时 dy 为负，高度应该增加（boxHeightOffset 增加）
-        // 所以需要取反：向上拖拽 = 负 dy = 正高度偏移
         const newHeightOffset = boxHeightOffset - dy;
         const maxHeightOffset = Math.floor(canvasHeight * 0.8) - box.baseH;
         boxHeightOffset = Math.max(0, Math.min(maxHeightOffset, newHeightOffset));
-        console.log('[TouchMove] 拖拽拉高分析框:', {
-          touchY: y, touchStartY, dy,
-          oldHeightOffset: boxHeightOffset + dy, newHeightOffset: boxHeightOffset,
-          baseH: box.baseH, maxHeightOffset,
-          newHeight: box.baseH + boxHeightOffset
-        });
         render();
       }
       return;
@@ -1102,11 +866,7 @@ Page({
       }
       
       if (oldScroll !== analysisScroll) {
-        console.log('[TouchMove] 滚动更新:', {
-          touchY: y, touchStartY, dy,
-          oldScroll, newScroll: analysisScroll,
-          touchStartScroll
-        });
+        // 滚动更新
       }
       render();
     }
@@ -1114,41 +874,32 @@ Page({
 
   // 触摸结束：如果不是在拖动解析框，则视为点击
   onCanvasTouchEnd(e) {
-    console.log('[TouchEnd] 原始事件:', e);
-    
     // 小程序 canvas 2d 触摸事件坐标获取
     let x, y;
     if (e.detail && e.detail.x !== undefined) {
       x = e.detail.x;
       y = e.detail.y;
-      console.log('[TouchEnd] 使用 e.detail 坐标:', x, y);
     } else if (e.changedTouches && e.changedTouches[0]) {
       x = e.changedTouches[0].x;
       y = e.changedTouches[0].y;
-      console.log('[TouchEnd] 使用 e.changedTouches[0] 坐标:', x, y);
     } else {
-      console.log('[TouchEnd] 无法获取坐标');
       return;
     }
     
     if (x === undefined || y === undefined) {
-      console.log('[TouchEnd] 坐标无效');
       return;
     }
 
     if (isDraggingBox) {
-      console.log('[TouchEnd] 结束拖拽拉高分析框，最终高度偏移:', boxHeightOffset);
       isDraggingBox = false;
       return;
     }
 
     if (isTouchingAnalysis) {
-      console.log('[TouchEnd] 结束拖拽滚动，最终滚动位置:', analysisScroll);
       isTouchingAnalysis = false;
       return;
     }
 
-    console.log('[TouchEnd] 处理点击:', { x, y });
     handleTap(x, y);
   },
   
@@ -1276,4 +1027,3 @@ Page({
       });
   }
 });
-

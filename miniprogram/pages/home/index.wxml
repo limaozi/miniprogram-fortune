@@ -11,5 +11,8 @@
     <button class="home-button constellation-button" bindtap="goToConstellation">
       <text class="button-text">星座测试</text>
     </button>
+    <button class="home-button style-button" bindtap="goToStyle">
+      <text class="button-text">穿搭建议</text>
+    </button>
   </view>
 </view>
