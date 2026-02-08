@@ -117,7 +117,7 @@
     <swiper-item>
       <view class="result-container">
         <view class="result-header">
-          <text class="result-title">您的MBTI类型</text>
+          <text class="">您的MBTI类型</text>
           <text class="swipe-hint-text-small">← 左滑返回</text>
         </view>
         <view class="result-header">

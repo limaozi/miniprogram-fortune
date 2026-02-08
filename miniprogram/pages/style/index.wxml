@@ -40,11 +40,19 @@
   </view>
   <swiper class="result-swiper" wx:if="{{showResult}}" current="{{resultPage}}" bindchange="onResultSwiperChange" style="height: {{swiperHeight}}rpx;">
     <swiper-item>
-      <scroll-view class="review-container" scroll-y="true" style="height: {{reviewScrollHeight}}rpx;">
         <view class="review-header">
           <text class="review-title">回顾你的答案</text>
           <text class="swipe-hint-text-small">右滑查看结果 →</text>
         </view>
+        <scroll-view 
+          class="review-content" 
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          enable-back-to-top="{{false}}"
+          style="height: {{reviewScrollHeight}}rpx;"
+        >
         <view class="review-content">
           <view class="review-list">
             <block wx:for="{{answers}}" wx:key="index">
@@ -70,18 +78,29 @@
       </scroll-view>
     </swiper-item>
     <swiper-item>
-      <scroll-view class="result-container" scroll-y="true" style="height: {{resultScrollHeight}}rpx;">
-        <view class="result-card">
+      <view class="result-container">
+        <view class="result-header">
           <text class="result-title">你的穿搭建议</text>
+          <text class="swipe-hint-text-small">← 左滑返回</text>
         </view>
-        <view class="result-card">
+        <scroll-view 
+          class="result-content" 
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          enable-back-to-top="{{false}}"
+          style="height: {{resultScrollHeight}}rpx;"
+        >
+        <view class="result-description">
           <text class="result-text">{{styleSuggestion}}</text>
         </view>
+      </scroll-view>
         <view class="result-buttons">
           <button class="restart-button" bindtap="restartTest">重新测试</button>
           <button class="back-button" bindtap="goBack">返回首页</button>
         </view>
-      </scroll-view>
+      </view>
     </swiper-item>
   </swiper>
 </view>
