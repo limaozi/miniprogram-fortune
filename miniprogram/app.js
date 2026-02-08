@@ -13,7 +13,7 @@ module.exports = {
   AI_MODEL
 };
 // API Key encoded in Base64 (encrypted)
-const ENCRYPTED_API_KEY = '';
+const ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
 // 过滤 API 响应文本
 // 1. 移除 </think> 及之前的所有内容
 // 2. 移除全是英文的段落
@@ -31,7 +31,7 @@ function filterAnalysisText(text) {
   const paragraphs = text.split(/(\n\n+)/); // 保留分隔符
   const filteredParagraphs = paragraphs.map((para) => {
     if (para.match(/^\n+$/)) return para; // 保留空行分隔符
-    
+    export const  ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
     // 检查段落是否是全英文（只包含英文字母、数字、标点等，没有中文）
     const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/g.test(para);
     
@@ -102,7 +102,14 @@ const callDeepseekAPI = (prompt, options = {}) => {
             if (url === DEEPSEEK_API_URL) {
               requestId = Math.random();
               hasResponded = false; // Reset for the retry attempt
-              makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+              
+              // 检查 ENCRYPTED_API_KEY 是否存在
+              if (typeof ENCRYPTED_API_KEY === 'undefined') {
+                console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
+                reject(new Error('API密钥配置错误'));
+              } else {
+                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+              }
             } else {
               reject(new Error('所有API请求均超时'));
             }
@@ -155,7 +162,14 @@ const callDeepseekAPI = (prompt, options = {}) => {
               if (url === DEEPSEEK_API_URL) {
                 console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
                 requestId = Math.random();
-                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+                
+                // 检查 ENCRYPTED_API_KEY 是否存在
+                if (typeof ENCRYPTED_API_KEY === 'undefined') {
+                  console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
+                  reject(new Error('API密钥配置错误'));
+                } else {
+                  makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+                }
               } else {
                 reject(new Error('网络请求失败'));
               }

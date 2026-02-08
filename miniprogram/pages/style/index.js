@@ -27,10 +27,16 @@ Page({
   onLoad() {
     const sys = wx.getSystemInfoSync();
     const rpxH = Math.floor(sys.windowHeight * 750 / sys.windowWidth);
+    
+    // 计算scroll-view高度：窗口高度 - 头部高度(约 150rpx) - 底部按钮区域(约 240rpx)
+    const headerHeight = 150;
+    const buttonArea = 240;
+    const scrollHeight = rpxH - headerHeight - buttonArea;
+    
     this.setData({
       currentQuestionData: this.data.questions[0],
-      reviewScrollHeight: rpxH,
-      resultScrollHeight: rpxH,
+      reviewScrollHeight: Math.max(400, scrollHeight),
+      resultScrollHeight: Math.max(400, scrollHeight),
       swiperHeight: rpxH,
       currentOptionsDecorated: this.decorateOptions(this.data.questions[0].question, this.data.questions[0].options)
     });
@@ -69,7 +75,8 @@ Page({
     const answer = {
       index: currentQuestion,
       choice: questions[currentQuestion].options[selectedOption],
-      question: questions[currentQuestion].question
+      question: questions[currentQuestion].question,
+      bg: this.data.currentOptionsDecorated[selectedOption].bg
     };
     const newAnswers = answers.slice();
     newAnswers[currentQuestion] = answer;
@@ -111,24 +118,38 @@ Page({
     \n\n`;
     console.log(prompt);
     const app = getApp();
-    app.callDeepseekAPI(prompt)
-      .then(content => {
-        const cleanedContent = content.replace(/[\s\S]*?<\/think>/, '').trim();
-        this.setData({
-          showResult: true,
-          styleSuggestion: cleanedContent,
-          isLoading: false
+    
+    try {
+      app.callDeepseekAPI(prompt)
+        .then(content => {
+          const cleanedContent = content.replace(/[\s\S]*?<\/think>/, '').trim();
+          this.setData({
+            showResult: true,
+            styleSuggestion: cleanedContent,
+            isLoading: false,
+            resultPage: 0
+          });
+        })
+        .catch(error => {
+          console.error('API调用失败:', error);
+          const fallback = "建议选择简洁有型的基础款进行搭配：上衣可选合身T恤或衬衫，搭配直筒或锥形长裤；色彩以黑白灰与低饱和色为主，适当加入点缀色提升层次。材质可选棉麻或轻薄针织，既舒适又有质感。通勤建议衬衫+西裤，休闲选择T恤+牛仔或工装，约会可增加软糯针织或小香风元素，运动选择速干面料。根据身形比例注意上短下长或高腰线，鞋履选择简洁的运动鞋或乐福鞋。";
+          this.setData({
+            showResult: true,
+            styleSuggestion: fallback,
+            isLoading: false,
+            resultPage: 0
+          });
         });
-      })
-      .catch(() => {
-        const fallback = "建议选择简洁有型的基础款进行搭配：上衣可选合身T恤或衬衫，搭配直筒或锥形长裤；色彩以黑白灰与低饱和色为主，适当加入点缀色提升层次。材质可选棉麻或轻薄针织，既舒适又有质感。通勤建议衬衫+西裤，休闲选择T恤+牛仔或工装，约会可增加软糯针织或小香风元素，运动选择速干面料。根据身形比例注意上短下长或高腰线，鞋履选择简洁的运动鞋或乐福鞋。";
-        this.setData({
-          showResult: true,
-          styleSuggestion: fallback,
-          isLoading: false
-        });
+    } catch (error) {
+      console.error('调用API时出错:', error);
+      const fallback = "建议选择简洁有型的基础款进行搭配：上衣可选合身T恤或衬衫，搭配直筒或锥形长裤；色彩以黑白灰与低饱和色为主，适当加入点缀色提升层次。材质可选棉麻或轻薄针织，既舒适又有质感。通勤建议衬衫+西裤，休闲选择T恤+牛仔或工装，约会可增加软糯针织或小香风元素，运动选择速干面料。根据身形比例注意上短下长或高腰线，鞋履选择简洁的运动鞋或乐福鞋。";
+      this.setData({
+        showResult: true,
+        styleSuggestion: fallback,
+        isLoading: false,
+        resultPage: 0
       });
-    this.setData({ resultPage: 0 });
+    }
   },
   onResultSwiperChange(e) {
     this.setData({ resultPage: e.detail.current || 0 });

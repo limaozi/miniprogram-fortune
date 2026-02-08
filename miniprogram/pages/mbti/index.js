@@ -336,44 +336,58 @@ Page({
 6. make questions and options feminine
 IMPORTANT: All questions and options must be written in Chinese. Only return the JSON array, no other text.`;
     console.log(prompt);
-    const app = getApp();
-    app.callDeepseekAPI(prompt)
-      .then(response => {
-        try {
-          // 尝试解析JSON
-          let questions = [];
-          
-          // 尝试从响应中提取JSON
-          const jsonMatch = response.match(/\[[\s\S]*\]/);
-          if (jsonMatch) {
-            questions = JSON.parse(jsonMatch[0]);
-            console.log(questions);
-          } else {
-            // 如果无法解析，使用备用题目
-            console.warn('无法解析API返回的题目，使用备用题目');
-            questions = getRandomQuestions();
+    
+    try {
+      const app = getApp();
+      app.callDeepseekAPI(prompt)
+        .then(response => {
+          try {
+            // 尝试解析JSON
+            let questions = [];
+            
+            // 尝试从响应中提取JSON
+            const jsonMatch = response.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              questions = JSON.parse(jsonMatch[0]);
+              console.log(questions);
+            } else {
+              // 如果无法解析，使用备用题目
+              console.warn('无法解析API返回的题目，使用备用题目');
+              questions = getRandomQuestions();
+            }
+            
+            // 验证题目格式
+            if (!Array.isArray(questions) || questions.length === 0) {
+              questions = getRandomQuestions();
+            }
+            
+            // 确保有5道题
+            if (questions.length < 5) {
+              const backup = getRandomQuestions();
+              questions = questions.concat(backup.slice(0, 5 - questions.length));
+            }
+            questions = questions.slice(0, 5);
+            
+            this.setData({
+              questions: questions,
+              currentQuestionData: questions[0],
+              answers: [],
+              isLoading: false
+            });
+          } catch (error) {
+            console.error('解析题目失败:', error);
+            // 使用备用题目
+            const randomQuestions = getRandomQuestions();
+            this.setData({
+              questions: randomQuestions,
+              currentQuestionData: randomQuestions[0],
+              answers: [],
+              isLoading: false
+            });
           }
-          
-          // 验证题目格式
-          if (!Array.isArray(questions) || questions.length === 0) {
-            questions = getRandomQuestions();
-          }
-          
-          // 确保有5道题
-          if (questions.length < 5) {
-            const backup = getRandomQuestions();
-            questions = questions.concat(backup.slice(0, 5 - questions.length));
-          }
-          questions = questions.slice(0, 5);
-          
-          this.setData({
-            questions: questions,
-            currentQuestionData: questions[0],
-            answers: [],
-            isLoading: false
-          });
-        } catch (error) {
-          console.error('解析题目失败:', error);
+        })
+        .catch(error => {
+          console.error('生成题目API失败:', error);
           // 使用备用题目
           const randomQuestions = getRandomQuestions();
           this.setData({
@@ -382,19 +396,18 @@ IMPORTANT: All questions and options must be written in Chinese. Only return the
             answers: [],
             isLoading: false
           });
-        }
-      })
-      .catch(error => {
-        console.error('生成题目失败:', error);
-        // 使用备用题目
-        const randomQuestions = getRandomQuestions();
-        this.setData({
-          questions: randomQuestions,
-          currentQuestionData: randomQuestions[0],
-          answers: [],
-          isLoading: false
         });
+    } catch (error) {
+      console.error('调用生成题目API时出错:', error);
+      // 使用备用题目
+      const randomQuestions = getRandomQuestions();
+      this.setData({
+        questions: randomQuestions,
+        currentQuestionData: randomQuestions[0],
+        answers: [],
+        isLoading: false
       });
+    }
   },
   
   onReady() {
@@ -627,7 +640,7 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
             showResult: true,
             mbtiType: result.type,
             mbtiDescription: result.description,
-            mbtiShortDescription: mbtiType + ": " +MBTI_DESCRIPTIONS[mbtiType],
+            mbtiShortDescription: result.type + ": " +MBTI_DESCRIPTIONS[result.type],
             isLoading: false,
             resultPage: 0 // 默认显示回顾页面
           }, () => {
@@ -644,7 +657,7 @@ IMPORTANT: The type should be in English (e.g., INTJ), but the description must 
           showResult: true,
           mbtiType: result.type,
           mbtiDescription: result.description,
-          mbtiShortDescription: mbtiType + ": " +MBTI_DESCRIPTIONS[mbtiType],
+          mbtiShortDescription: result.type + ": " +MBTI_DESCRIPTIONS[result.type],
           isLoading: false,
           resultPage: 0 // 默认显示回顾页面
         }, () => {

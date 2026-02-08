@@ -1,6 +1,7 @@
 <view class="style-container">
   <view class="style-header">
     <text class="style-title">穿搭建议测试</text>
+    <text class="question-counter" wx:if="{{!isLoading}}">第 {{currentQuestion + 1}} / {{totalQuestions}} 题</text>
   </view>
   <view class="question-container" wx:if="{{!showResult && !isLoading}}">
     <view class="question-card">
@@ -38,8 +39,12 @@
       <text class="loading-text">{{loadingText}}</text>
     </view>
   </view>
-  <swiper class="result-swiper" wx:if="{{showResult}}" current="{{resultPage}}" bindchange="onResultSwiperChange" style="height: {{swiperHeight}}rpx;">
+  <swiper class="result-swiper" wx:if="{{showResult}}" current="{{resultPage}}" bindchange="onResultSwiperChange" style="height: 100vh;">
     <swiper-item>
+<<<<<<< Updated upstream
+=======
+      <view class="review-container">
+>>>>>>> Stashed changes
         <view class="review-header">
           <text class="review-title">回顾你的答案</text>
           <text class="swipe-hint-text-small">右滑查看结果 →</text>
@@ -53,29 +58,36 @@
           enable-back-to-top="{{false}}"
           style="height: {{reviewScrollHeight}}rpx;"
         >
+<<<<<<< Updated upstream
         <view class="review-content">
+=======
+>>>>>>> Stashed changes
           <view class="review-list">
-            <block wx:for="{{answers}}" wx:key="index">
-              <view class="review-item">
-                <view class="question-card">
-                  <text class="question-text">{{item.question}}</text>
-                </view>
-                <view class="review-options">
-                  <view class="review-option">
-                    <view class="option-indicator">
-                      <view class="option-circle checked">
-                        <view class="option-checkmark"></view>
-                      </view>
+            <view 
+              class="review-item"
+              wx:for="{{answers}}"
+              wx:key="index"
+              wx:for-index="aIdx"
+            >
+              <view class="review-question-card">
+                <text class="review-question-number">问题 {{aIdx + 1}}</text>
+                <text class="review-question-text">{{item.question}}</text>
+              </view>
+              <view class="review-options">
+                <view class="review-option selected">
+                  <view class="review-option-indicator">
+                    <view class="review-option-circle checked">
+                      <view class="review-option-checkmark"></view>
                     </view>
-                    <view class="option-swatch" wx:if="{{item.bg}}" style="background: {{item.bg}}"></view>
-                    <text class="option-text">{{item.choice}}</text>
                   </view>
+                  <view class="option-swatch" wx:if="{{item.bg}}" style="background: {{item.bg}}"></view>
+                  <text class="review-option-text">{{item.choice}}</text>
                 </view>
               </view>
-            </block>
+            </view>
           </view>
-        </view>
-      </scroll-view>
+        </scroll-view>
+      </view>
     </swiper-item>
     <swiper-item>
       <view class="result-container">
@@ -92,10 +104,17 @@
           enable-back-to-top="{{false}}"
           style="height: {{resultScrollHeight}}rpx;"
         >
+<<<<<<< Updated upstream
         <view class="result-description">
           <text class="result-text">{{styleSuggestion}}</text>
         </view>
       </scroll-view>
+=======
+          <view class="result-card">
+            <text class="result-text">{{styleSuggestion}}</text>
+          </view>
+        </scroll-view>
+>>>>>>> Stashed changes
         <view class="result-buttons">
           <button class="restart-button" bindtap="restartTest">重新测试</button>
           <button class="back-button" bindtap="goBack">返回首页</button>

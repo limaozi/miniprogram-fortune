@@ -635,7 +635,7 @@ function callDeepseek(spreadKey, drawResult) {
     })
     .catch(err => {
       console.error('[callDeepseek] API 调用失败:', err);
-      return err.message || '无法生成解析';
+      return '网络请求失败，请稍后再试';
     });
 }
 
@@ -987,8 +987,15 @@ Page({
           }
           animationTimer = null;
         }
+        // 显示错误消息
+        lastAnalysis = '网络请求失败，请稍后再试';
+        const app = getApp();
+        if (app.globalData) {
+          app.globalData.lastAnalysis = lastAnalysis;
+        }
         this.setData({
-          isLoading: false
+          isLoading: false,
+          analysisText: lastAnalysis
         });
         render();
       });
