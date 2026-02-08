@@ -1,17 +1,31 @@
 <!-- 入口页面 -->
 <view class="home-container">
   <view class="title">宝藏之地</view>
-  <view class="button-container">
-    <button class="home-button tarot-button" bindtap="goToTarot">
+  
+  <!-- 五瓣梅花布局 -->
+  <view class="plum-container">
+    <!-- 上：塔罗命运 -->
+    <button class="home-button tarot-button petal-top" bindtap="goToTarot">
       <text class="button-text">塔罗命运</text>
     </button>
-    <button class="home-button mbti-button" bindtap="goToMBTI">
+    
+    <!-- 右上：MBTI测试 -->
+    <button class="home-button mbti-button petal-right-top" bindtap="goToMBTI">
       <text class="button-text">MBTI测试</text>
     </button>
-    <button class="home-button constellation-button" bindtap="goToConstellation">
+    
+    <!-- 右下：情感咨询 -->
+    <button class="home-button love-button petal-right-bottom" bindtap="goToLove">
+      <text class="button-text">情感咨询</text>
+    </button>
+    
+    <!-- 左下：星座测试 -->
+    <button class="home-button constellation-button petal-left-bottom" bindtap="goToConstellation">
       <text class="button-text">星座测试</text>
     </button>
-    <button class="home-button style-button" bindtap="goToStyle">
+    
+    <!-- 左上：穿搭建议 -->
+    <button class="home-button style-button petal-left-top" bindtap="goToStyle">
       <text class="button-text">穿搭建议</text>
     </button>
   </view>

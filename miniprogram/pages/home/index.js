@@ -29,4 +29,11 @@ Page({
       url: '/pages/style/index',
     });
   },
+  
+  // 跳转到情感咨询页面
+  goToLove() {
+    wx.navigateTo({
+      url: '/pages/love/index/index'
+    });
+  },
 });

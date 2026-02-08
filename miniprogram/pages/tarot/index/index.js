@@ -57,38 +57,7 @@ let boxHeightOffset = 0; // 正值表示高度增加
 let isDraggingBox = false; // 是否正在拖拽分析框（而不是滚动内容）
 let dragStartHeight = 0; // 开始拖拽时的分析框高度
 
-// 过滤 API 响应文本
-// 1. 移除 </think> 及之前的所有内容
-// 2. 移除全是英文的段落
-function filterAnalysisText(text) {
-  if (!text) return text;
 
-  // 第一步：移除 </think> 及之前的所有内容
-  const thinkIndex = text.indexOf('</think>');
-  if (thinkIndex !== -1) {
-    text = text.substring(thinkIndex + 8); // 8 是 '</think>'.length
-  }
-
-  // 第二步：移除全是英文的段落
-  // 将文本按段落分割（以换行符或句号等分割）
-  const paragraphs = text.split(/(\n\n+)/); // 保留分隔符
-  const filteredParagraphs = paragraphs.map((para) => {
-    if (para.match(/^\n+$/)) return para; // 保留空行分隔符
-    
-    // 检查段落是否是全英文（只包含英文字母、数字、标点等，没有中文）
-    const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/g.test(para);
-    
-    if (!hasChinese && para.trim().length > 0) {
-      // 这个段落全是英文，移除它
-      return '';
-    }
-    return para;
-  });
-
-  // 拼接回来，并清理多余的空行
-  const result = filteredParagraphs.join('').replace(/\n\n\n+/g, '\n\n').trim();
-  return result;
-}
 
 // ----------------- 绘制 UI -----------------
 
@@ -991,8 +960,6 @@ Page({
           }
           animationTimer = null;
         }
-        // 过滤 API 响应文本
-        text = filterAnalysisText(text);
         lastAnalysis = text;
         // 保存到全局数据
         const app = getApp();

@@ -1,0 +1,40 @@
+<!-- 情感咨询分析结果页面 -->
+<view class="analysis-container">
+  <view class="analysis-header">
+    <text class="analysis-title">你的恋爱分析</text>
+  </view>
+  
+  <!-- 分析结果 -->
+  <scroll-view class="analysis-content" scroll-y="true">
+    <view class="analysis-text-block" wx:if="{{analysis}}">
+      <text class="analysis-text">{{analysis}}</text>
+    </view>
+  </scroll-view>
+  
+  <!-- 答案回顾按钮 -->
+  <view class="button-group">
+    <button class="review-button" bindtap="toggleAnswers">
+      <text class="button-text">{{showAnswers ? '隐藏' : '查看'}}答题回顾</text>
+    </button>
+    <button class="home-button" bindtap="goHome">
+      <text class="button-text">返回首页</text>
+    </button>
+  </view>
+  
+  <!-- 答题回顾 -->
+  <view class="answers-modal" wx:if="{{showAnswers}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">答题回顾</text>
+        <text class="close-btn" bindtap="toggleAnswers">×</text>
+      </view>
+      
+      <scroll-view class="answers-scroll" scroll-y="true">
+        <view class="answer-item" wx:for="{{answers}}" wx:key="index">
+          <text class="answer-question">第{{index + 1}}题：{{item.question}}</text>
+          <text class="answer-text">你的答案：{{item.selectedAnswer}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>
