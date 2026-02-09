@@ -22,8 +22,6 @@
   margin-bottom: 20rpx;
   font-family: 'PingFang SC', sans-serif;
 }
-<<<<<<< Updated upstream
-=======
 
 .question-counter {
   font-size: 28rpx;
@@ -431,7 +429,6 @@
   justify-content: center;
   align-items: center;
 }
->>>>>>> Stashed changes
 
 .restart-button,
 .back-button {

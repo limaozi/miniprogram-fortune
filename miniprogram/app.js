@@ -4,7 +4,8 @@ const API_CONFIG = {
 const NVIDIA_DEEPSEEK_API_KEY = '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';
 const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const AI_MODEL = 'deepseek-ai/deepseek-v3.1';
-
+// API Key encoded in Base64 (encrypted)
+const ENCRYPTED_API_KEY = '';
 // 导出API配置
 module.exports = {
   API_CONFIG,
@@ -12,8 +13,7 @@ module.exports = {
   DEEPSEEK_API_URL,
   AI_MODEL
 };
-// API Key encoded in Base64 (encrypted)
-const ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
+
 // 过滤 API 响应文本
 // 1. 移除 </think> 及之前的所有内容
 // 2. 移除全是英文的段落
@@ -31,7 +31,6 @@ function filterAnalysisText(text) {
   const paragraphs = text.split(/(\n\n+)/); // 保留分隔符
   const filteredParagraphs = paragraphs.map((para) => {
     if (para.match(/^\n+$/)) return para; // 保留空行分隔符
-    export const  ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
     // 检查段落是否是全英文（只包含英文字母、数字、标点等，没有中文）
     const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/g.test(para);
     
