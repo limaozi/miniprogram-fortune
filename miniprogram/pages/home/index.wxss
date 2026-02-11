@@ -84,7 +84,7 @@ page {
 }
 
 .tarot-button {
-  background: linear-gradient(135deg, #7083d6 0%, #8e4ba2 100%);
+  background: linear-gradient(135deg, #3b51b6 0%, #8e4ba2 100%);
   color: #ffffff;
 }
 
@@ -94,7 +94,7 @@ page {
 }
 
 .mbti-button {
-  background: linear-gradient(135deg, #ff5d51 0%, #ffb759 100%);
+  background: linear-gradient(135deg, #bb473f 0%, #d3ae35 100%);
   color: #ffffff;
 }
 
@@ -104,7 +104,7 @@ page {
 }
 
 .constellation-button {
-  background: linear-gradient(135deg, #e7634c 0%, #f5dd57 100%);
+  background: linear-gradient(135deg, #684ce7 0%, #af58e2 100%);
   color: #ffffff;
 }
 

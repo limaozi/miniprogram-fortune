@@ -6,8 +6,8 @@
   
   <!-- 分析结果 -->
   <scroll-view class="analysis-content" scroll-y="true">
-    <view class="analysis-text-block" wx:if="{{analysis}}">
-      <text class="analysis-text">{{analysis}}</text>
+    <view class="result-description-block" wx:if="{{analysis}}">
+      <text class="result-description">{{analysis}}</text>
     </view>
   </scroll-view>
   

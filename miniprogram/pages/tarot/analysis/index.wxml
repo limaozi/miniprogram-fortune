@@ -6,7 +6,7 @@
       <text class="swipe-hint">右滑返回</text>
     </view>
     <scroll-view class="analysis-content" scroll-y="true">
-      <text class="analysis-text">{{analysisText}}</text>
+      <text class="result-description">{{analysisText}}</text>
     </scroll-view>
   </view>
 </view>

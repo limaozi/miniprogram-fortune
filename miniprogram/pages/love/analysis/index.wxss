@@ -40,18 +40,10 @@ page {
   backdrop-filter: blur(10px);
 }
 
-.analysis-text-block {
+.result-description-block {
   width: 100%;
 }
 
-.analysis-text {
-  font-size: 28rpx;
-  color: #ffffff;
-  line-height: 2;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: 'PingFang SC', sans-serif;
-}
 
 .button-group {
   display: flex;

@@ -98,7 +98,7 @@
           style="height: {{resultScrollHeight}}rpx;"
         >
           <view class="result-card">
-            <text class="result-text">{{styleSuggestion}}</text>
+            <text class="result-description">{{styleSuggestion}}</text>
           </view>
         </scroll-view>
         <view class="result-buttons">

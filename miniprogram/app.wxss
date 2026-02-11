@@ -453,7 +453,7 @@ page {
 }
 
 .result-description {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #ffffff;
   line-height: 1.8;
   text-align: left;

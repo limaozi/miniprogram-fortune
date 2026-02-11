@@ -49,12 +49,3 @@ page {
   padding: 30rpx;
   overflow-y: auto;
 }
-
-.analysis-text {
-  font-size: 28rpx;
-  line-height: 1.8;
-  color: #ffffff;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: 'PingFang SC', sans-serif;
-}

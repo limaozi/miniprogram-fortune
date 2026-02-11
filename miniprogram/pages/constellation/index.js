@@ -448,67 +448,48 @@ Return format should be a JSON object:
 IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written in Chinese. Only return the JSON object, no other text.`;
     
     const app = getApp();
-    
-    // 使用try-catch包装API调用，确保任何同步错误也能被捕获
-    try {
-      // 设置请求超时（30秒）
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          reject(new Error('网络请求失败'));
-        }, 30000);
-      });
-      
-      Promise.race([
-        app.callDeepseekAPI(prompt),
-        timeoutPromise
-      ])
-        .then(response => {
-          try {
-            // 尝试解析JSON
-            let result = null;
+    app.callDeepseekAPI(prompt)
+      .then(response => {
+      try{
+        // 尝试解析JSON
+        let result = null;
             
-            // 尝试从响应中提取JSON
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              result = JSON.parse(jsonMatch[0]);
-            }
-            console.log('星座分析结果:', result);
-            
-            // 验证结果
-            if (!result || !result.type || !result.description) {
-              throw new Error('结果格式不正确');
-            }
-            
-            this.setData({
-              showResult: true,
-              constellationType: result.type,
-              constellationDescription: result.description,
-              isLoading: false,
-              resultPage: 0 // 默认显示回顾页面
-            }, () => {
-              // 更新scroll-view高度
-              this.updateReviewScrollHeight();
-              // 初始化canvas并绘制图片
-              setTimeout(() => this.initCanvas(), 100);
-            });
-          } catch (error) {
-            console.error('解析结果失败:', error);
-            // 使用默认计算的星座信息
-            this.useDefaultConstellationResult();
-          }
-        })
-        .catch(error => {
-          console.error('API调用失败:', error);
-          // 使用默认计算的星座信息
+        // 尝试从响应中提取JSON
+        const jsonMatch = response.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          result = JSON.parse(jsonMatch[0]);
+        }
+        console.log('星座分析结果:', result);
+        
+        // 验证结果
+        if (!result || !result.type || !result.description) {
           this.useDefaultConstellationResult();
-        });
-    } catch (error) {
-      console.error('调用API时出错:', error);
-      // 使用默认计算的星座信息
-      this.useDefaultConstellationResult();
+          throw new Error('结果格式不正确');
+        }
+        this.setData({
+          showResult: true,
+          constellationType: result.type,
+          constellationDescription: result.description,
+          isLoading: false,
+          resultPage: 0 // 默认显示回顾页面
+          }, () => {
+          // 更新scroll-view高度
+          this.updateReviewScrollHeight();
+          // 初始化canvas并绘制图片
+          setTimeout(() => this.initCanvas(), 100);
+        }); 
+      } catch (error) {
+        console.error('解析结果失败:', error);
+        // 使用默认计算的星座信息
+        this.useDefaultConstellationResult();
     }
+  })
+  .catch(error => {
+    console.error('API调用失败:', error);
+    // 使用默认计算的星座信息
+    this.useDefaultConstellationResult();
+  });
   },
-  
   // 使用默认星座计算结果（API失败时）
   useDefaultConstellationResult() {
     const { selectedMonth, selectedDay, selectedGender } = this.data;

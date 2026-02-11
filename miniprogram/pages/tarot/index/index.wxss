@@ -211,20 +211,12 @@
   min-height: 0; /* 允许收缩 */
 }
 
-.analysis-text-wrapper {
+.result-description-wrapper {
   min-height: 100%;
   padding-bottom: 20rpx;
 }
 
-.analysis-text {
-  font-size: 28rpx;
-  line-height: 1.8;
-  color: #ffffff;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: 'PingFang SC', sans-serif;
-  display: block;
-}
+
 
 /* 分析页面按钮区域 */
 .analysis-buttons {

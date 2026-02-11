@@ -75,8 +75,8 @@
           enable-back-to-top="{{false}}"
           style="height: {{scrollViewHeight}}rpx;"
         >
-          <view class="analysis-text-wrapper">
-            <text class="analysis-text">{{analysisText}}</text>
+          <view class="result-description-wrapper">
+            <text class="result-description">{{analysisText}}</text>
           </view>
         </scroll-view>
         <view class="analysis-buttons">

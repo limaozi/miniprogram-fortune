@@ -76,7 +76,7 @@
                 <text class="review-question-text">生日日期</text>
               </view>
               <view class="review-option-selected">
-                <text class="review-option-text">{{selectedYear}}-{{selectedMonth}}-{{selectedDay}}</text>
+                <text class="review-option-text review-option.selected">{{selectedYear}}-{{selectedMonth}}-{{selectedDay}}</text>
               </view>
             </view>
             <view class="review-item">
@@ -84,7 +84,7 @@
                 <text class="review-question-text">性别</text>
               </view>
               <view class="review-option-selected">
-                <text class="review-option-text">{{selectedGender === 'male' ? '男' : '女'}}</text>
+                <text class="review-option-text review-option.selected">{{selectedGender === 'male' ? '男' : '女'}}</text>
               </view>
             </view>
           </view>
@@ -109,7 +109,7 @@
           style="height: {{resultScrollHeight}}rpx;"
         >
           <view class="result-card">
-            <text class="result-type">{{constellationType}}</text>
+            <text class="constellation-result-type">{{constellationType}}</text>
             <canvas
               type="2d"
               id="constellationCanvas"

@@ -1,18 +1,9 @@
 // app.js
-const API_CONFIG = {
-};
 const NVIDIA_DEEPSEEK_API_KEY = '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';
 const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const AI_MODEL = 'deepseek-ai/deepseek-v3.1';
+const AI_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-14b';
 // API Key encoded in Base64 (encrypted)
 const ENCRYPTED_API_KEY = '';
-// 导出API配置
-module.exports = {
-  API_CONFIG,
-  NVIDIA_DEEPSEEK_API_KEY,
-  DEEPSEEK_API_URL,
-  AI_MODEL
-};
 
 // 过滤 API 响应文本
 // 1. 移除 </think> 及之前的所有内容
@@ -90,8 +81,11 @@ const callDeepseekAPI = (prompt, options = {}) => {
       let hasResponded = false;
 
       const makeRequest = (url, apiKey, model) => {
+        if (typeof url === 'undefined') {
+          console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
+          reject(new Error('API密钥配置错误'));
+        }
         const currentRequestId = requestId;
-        
         const timeoutTimer = setTimeout(() => {
           if (!hasResponded && currentRequestId === requestId) {
             hasResponded = true;
@@ -101,14 +95,8 @@ const callDeepseekAPI = (prompt, options = {}) => {
             if (url === DEEPSEEK_API_URL) {
               requestId = Math.random();
               hasResponded = false; // Reset for the retry attempt
+              makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
               
-              // 检查 ENCRYPTED_API_KEY 是否存在
-              if (typeof ENCRYPTED_API_KEY === 'undefined') {
-                console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
-                reject(new Error('API密钥配置错误'));
-              } else {
-                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-              }
             } else {
               reject(new Error('所有API请求均超时'));
             }
@@ -134,20 +122,37 @@ const callDeepseekAPI = (prompt, options = {}) => {
           },
           success: (res) => {
             if (!hasResponded && currentRequestId === requestId) {
-              hasResponded = true;
+              
               clearTimeout(timeoutTimer);
               console.log('[callDeepseekAPI] API 响应:', res);
               if (res.statusCode === 200 && res.data) {
                 const content = res.data.choices?.[0]?.message?.content || '';
                 if (content) {
                   resolve(filterAnalysisText(content));
-                } else {
+                  hasResponded = true;
+                } else {  
                   console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
-                  reject(new Error('API 返回数据格式异常'));
+                  if (url === DEEPSEEK_API_URL) {
+                    console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
+                    requestId = Math.random();
+                    hasResponded = false; // Reset for the retry attempt
+                    makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+                  }
+                  else{
+                    reject(new Error('API 返回数据格式异常'));
+                  }
                 }
               } else {
                 console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
-                reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
+                if (url === DEEPSEEK_API_URL) {
+                  console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
+                  requestId = Math.random();
+                  hasResponded = false; // Reset for the retry attempt
+                  makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
+                }
+                else{
+                  reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
+                }
               }
             }
           },
@@ -161,14 +166,8 @@ const callDeepseekAPI = (prompt, options = {}) => {
               if (url === DEEPSEEK_API_URL) {
                 console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
                 requestId = Math.random();
+                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
                 
-                // 检查 ENCRYPTED_API_KEY 是否存在
-                if (typeof ENCRYPTED_API_KEY === 'undefined') {
-                  console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
-                  reject(new Error('API密钥配置错误'));
-                } else {
-                  makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-                }
               } else {
                 reject(new Error('网络请求失败'));
               }

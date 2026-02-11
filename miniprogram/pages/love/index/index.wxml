@@ -114,7 +114,7 @@
           scroll-y="{{true}}"
           style="height: {{resultScrollHeight}}rpx;"
         >
-          <text class="result-text">{{analysis}}</text>
+          <text class="result-description">{{analysis}}</text>
         </scroll-view>
         <view class="result-buttons">
           <button class="restart-button" bindtap="restartTest">重新测试</button>
