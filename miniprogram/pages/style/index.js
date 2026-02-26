@@ -113,11 +113,22 @@ Page({
   },
   generateSuggestion(answers) {
     const summary = answers.map(a => `${a.question}：${a.choice}`).join("\n");
-    const prompt = `Based on the following user basic information, generate outfit suggestions in Chinese, 150-200 words, using a friendly, feminine and encouraging tone. Remember to praise users' look from the beginning. Include specific types of clothing, cuts, color combinations, and material recommendations, and suggest suitable occasions (commuting/casual/dating/sports). Use emoji and line breaks to be more like human being's converation. Do not include any thinking or reasoning process - only provide the final suggestion.\n\n
-    ${summary}
-    \n\n`;
-    console.log(prompt);
     const app = getApp();
+    const global = app && app.globalData ? app.globalData : {};
+    const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
+    const dateSeasonContext = currentDateStr
+      ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure the outfit suggestions fit this specific date and season (for example, temperature, atmosphere, and typical activities in this time of year). All your response MUST be in Chinese.`
+      : `All your response MUST be in Chinese.`;
+
+    const prompt = `You are a professional fashion stylist.
+${dateSeasonContext}
+Based on the following user basic information, generate outfit suggestions in Chinese, 150-200 words, using a friendly, feminine and encouraging tone. Remember to praise the user's look from the beginning. Include specific types of clothing, cuts, color combinations, and material recommendations, and suggest suitable occasions (commuting/casual/dating/sports). Use emoji and line breaks to be more like human conversation. Do not include any thinking or reasoning process - only provide the final suggestion.
+
+User info:
+${summary}
+`;
+    console.log(prompt);
+    //const app = getApp();
     
     try {
       app.callDeepseekAPI(prompt)

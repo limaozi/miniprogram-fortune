@@ -620,14 +620,27 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
+
+  const app = getApp();
+  const global = app && app.globalData ? app.globalData : {};
+  const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
+  const dateSeasonContext = currentDateStr
+    ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure your interpretation is suitable for this specific date and season (for example, energy, mood and suggested actions that fit this time of year), and answer ONLY in Chinese.`
+    : `Answer ONLY in Chinese, in a warm and encouraging tone.`;
   
   // Create a prompt that analyzes all cards combined together
-  const prompt = `Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.\n\nCards:\n${createDetailedPrompt(cardsdraw)}\n\nPlease provide an integrated interpretation of all these cards together:`;
+  const prompt = `You are a professional tarot reader.
+${dateSeasonContext}
+Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.
+
+Cards:
+${createDetailedPrompt(cardsdraw)}
+
+Please provide an integrated interpretation of all these cards together:`;
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
   // 使用app.js中的callDeepseekAPI
-  const app = getApp();
   return app.callDeepseekAPI(prompt)
     .then(content => {
       console.log('[callDeepseek] API 响应成功:', content);

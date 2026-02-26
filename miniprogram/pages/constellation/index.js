@@ -436,8 +436,17 @@ Page({
 
     this.setData({ isLoading: true, loadingText: "正在分析您的星座..." });
 
+    const app = getApp();
+    const global = app && app.globalData ? app.globalData : {};
+    const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
+    const dateSeasonContext = currentDateStr
+      ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure your constellation analysis and advice feel suitable for this specific date and season (for example, energy, mood, and suggested activities fitting this time of year). The description MUST be written in Chinese.`
+      : `The description MUST be written in Chinese.`;
+
     // Call DeepSeek API to generate constellation results
-    const prompt = `Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraph, emoji, bullet points, and so on to make it more like response from human-being.
+    const prompt = `You are an expert astrologer.
+${dateSeasonContext}
+Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraphs, emoji, bullet points, and so on to make it more like a response from a human being.
 
 Return format should be a JSON object:
 {
@@ -447,7 +456,6 @@ Return format should be a JSON object:
 
 IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written in Chinese. Only return the JSON object, no other text.`;
     
-    const app = getApp();
     app.callDeepseekAPI(prompt)
       .then(response => {
       try{

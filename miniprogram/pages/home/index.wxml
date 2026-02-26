@@ -1,6 +1,10 @@
 <!-- 入口页面 -->
 <view class="home-container">
   <view class="title">宝藏之地</view>
+  <view class="date-season">
+    <text class="date-text">{{currentDateStr}}</text>
+    <text class="season-text"> · {{currentSeasonZh}}</text>
+  </view>
   
   <!-- 五瓣梅花布局 -->
   <view class="plum-container">

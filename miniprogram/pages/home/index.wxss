@@ -20,9 +20,29 @@ page {
   font-size: 56rpx;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 80rpx;
+  margin-bottom: 20rpx;
   font-family: 'PingFang SC', sans-serif;
   text-shadow: 0 0 20rpx rgba(102, 126, 234, 0.5);
+}
+
+.date-season {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.date-text {
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.season-text {
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'PingFang SC', sans-serif;
 }
 
 /* 五瓣梅花布局 */
