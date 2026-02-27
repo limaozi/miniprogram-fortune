@@ -439,15 +439,11 @@ Page({
     const app = getApp();
     const global = app && app.globalData ? app.globalData : {};
     const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
-    const dateSeasonContext = currentDateStr
-      ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure your constellation analysis and advice feel suitable for this specific date and season (for example, energy, mood, and suggested activities fitting this time of year). The description MUST be written in Chinese.`
-      : `The description MUST be written in Chinese.`;
-
     // Call DeepSeek API to generate constellation results
     const prompt = `You are an expert astrologer.
-${dateSeasonContext}
-Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. The description should have a few paragraphs, emoji, bullet points, and so on to make it more like a response from a human being.
-
+Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. 
+The description should have a few paragraphs, emoji, bullet points, and so on to make it more like a response from a human being.
+Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Analyze user's fortune in this month, and advice suitable suggestion for this specific date and month. 
 Return format should be a JSON object:
 {
   "type": "constellation type in Chinese and constellation type in Latin, separated by a dash  (e.g., 白羊座 - Aries)",

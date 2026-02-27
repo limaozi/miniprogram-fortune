@@ -3,7 +3,7 @@ const NVIDIA_DEEPSEEK_API_KEY = 'nvapi-XFSZpetVOzfgjtn1xccH4xLIGFZ6whxo76YJzJND1
 const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const AI_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-14b';
 // API Key encoded in Base64 (encrypted)
-const ENCRYPTED_API_KEY = '';
+const ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
 
 // 过滤 API 响应文本
 // 1. 移除 </think> 及之前的所有内容

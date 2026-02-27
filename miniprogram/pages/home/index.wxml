@@ -5,7 +5,21 @@
     <text class="date-text">{{currentDateStr}}</text>
     <text class="season-text"> · {{currentSeasonZh}}</text>
   </view>
-  
+  <view class="date-season">
+    <text class="season-text">进入下面的测试，解锁当月运势</text>
+  </view>
+  <view class="weather-row" wx:if="{{!weatherLoading && !weatherError}}">
+    <text class="weather-city" wx:if="{{cityName}}">{{cityName}} · </text>
+    <text class="weather-text">{{weatherText}}</text>
+    <text class="weather-temp">{{weatherTemp}}</text>
+  </view>
+  <view class="weather-row weather-loading" wx:elif="{{weatherLoading}}">
+    <text class="season-text">正在获取当地天气…</text>
+  </view>
+  <view class="weather-row weather-error" wx:elif="{{weatherError}}">
+    <text class="season-text">暂无天气信息</text>
+  </view>
+
   <!-- 五瓣梅花布局 -->
   <view class="plum-container">
     <!-- 上：塔罗命运 -->

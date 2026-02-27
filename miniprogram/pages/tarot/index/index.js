@@ -623,15 +623,11 @@ function callDeepseek(spreadKey, drawResult) {
 
   const app = getApp();
   const global = app && app.globalData ? app.globalData : {};
-  const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
-  const dateSeasonContext = currentDateStr
-    ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure your interpretation is suitable for this specific date and season (for example, energy, mood and suggested actions that fit this time of year), and answer ONLY in Chinese.`
-    : `Answer ONLY in Chinese, in a warm and encouraging tone.`;
-  
+  const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;  
   // Create a prompt that analyzes all cards combined together
   const prompt = `You are a professional tarot reader.
-${dateSeasonContext}
-Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.
+Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). 
+Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined， and analyze user's fortune in this specific date. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.
 
 Cards:
 ${createDetailedPrompt(cardsdraw)}
@@ -783,7 +779,7 @@ Page({
     }
     
     // 检查是否在分析框内（用于拖拽滚动内容）
-    if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
+    if (box && x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
       isTouchingAnalysis = true;
       touchStartY = y;
       touchStartScroll = analysisScroll;

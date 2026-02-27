@@ -116,13 +116,9 @@ Page({
     const app = getApp();
     const global = app && app.globalData ? app.globalData : {};
     const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
-    const dateSeasonContext = currentDateStr
-      ? `Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Please make sure the outfit suggestions fit this specific date and season (for example, temperature, atmosphere, and typical activities in this time of year). All your response MUST be in Chinese.`
-      : `All your response MUST be in Chinese.`;
-
     const prompt = `You are a professional fashion stylist.
-${dateSeasonContext}
-Based on the following user basic information, generate outfit suggestions in Chinese, 150-200 words, using a friendly, feminine and encouraging tone. Remember to praise the user's look from the beginning. Include specific types of clothing, cuts, color combinations, and material recommendations, and suggest suitable occasions (commuting/casual/dating/sports). Use emoji and line breaks to be more like human conversation. Do not include any thinking or reasoning process - only provide the final suggestion.
+Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}).
+Based on the following user basic information and the specific season, month, generate outfit suggestions in Chinese, 150-200 words, using a friendly, feminine and encouraging tone. Remember to praise the user's look from the beginning. Make sure it is based on season. Include specific types of clothing, cuts, color combinations, and material recommendations, and suggest suitable occasions (commuting/casual/dating/sports). Use emoji and line breaks to be more like human conversation. Do not include any thinking or reasoning process - only provide the final suggestion.
 
 User info:
 ${summary}
