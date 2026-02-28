@@ -1,6 +1,8 @@
 // home.js - 入口页面
+var QQMapWX = require('../../lib/qqmap-wx-jssdk.js');
+var qqmapsdk;
 const OPEN_METEO_BASE = 'https://api.open-meteo.com/v1/forecast';
-const NOMINATIM_REVERSE = 'https://nominatim.openstreetmap.org/reverse';
+const WX_LOCATION_KEY = 'F4SBZ-SY6LJ-LHCFC-XFRW7-2CNC5-YHBYX';
 
 // WMO 天气现象代码 -> 简短中文描述
 function weatherCodeToText(code) {
@@ -76,50 +78,59 @@ Page({
       currentSeasonZh
     });
 
-    this.fetchWeatherByLocation();
+    this.fetchLocation();
   },
-
-  fetchWeatherByLocation() {
+  
+  fetchLocation(){
+    qqmapsdk = new QQMapWX({
+      key: WX_LOCATION_KEY
+    });
     this.setData({ weatherLoading: true, weatherError: false, cityName: '' });
     wx.getLocation({
-      type: 'wgs84',
+      type: 'gcj02', // 默认为 wgs84 返回的 gps 坐标，可选 gcj02
       success: (res) => {
-        this.fetchCityAndWeather(res.latitude, res.longitude);
+        // 获取成功，得到坐标
+        const latitude = res.latitude
+        const longitude = res.longitude
+
+        console.log('纬度：', latitude)
+        console.log('经度：', longitude)
+
+        // 用经纬度直接查天气
+        this.callOpenMeteo(latitude, longitude);
+
+        // 第二步：调用腾讯地图SDK，将坐标解析为详细地址
+        qqmapsdk.reverseGeocoder({
+          location: { // 传入第一步获取的坐标
+            latitude: latitude,
+            longitude: longitude
+          },
+          success: (addressRes) => {
+            // 解析成功，获取城市/区信息
+            const addressComponent = addressRes.result.address_component || {};
+            const city = addressComponent.city || '';
+            const district = addressComponent.district || '';
+            const displayName = district ? (city + district) : city;
+            console.log('解析后的地址:', displayName);
+            this.setData({
+              cityName: displayName || ''
+            });
+          },
+          fail: (error) => {
+            console.error('地址解析失败:', error);
+          }
+        });
       },
       fail: (err) => {
-        console.warn('获取位置失败，使用默认坐标', err);
-        this.fetchCityAndWeather(39.9042, 116.4074);
+        console.log('获取位置失败', err)
+        // 获取失败，可能是用户拒绝了授权，标记为错误
+        this.setData({
+          weatherLoading: false,
+          weatherError: true
+        });
       }
-    });
+    })
   },
-
-  // 从 Nominatim 逆地理结果中取城市名（优先 city > town > village > county > state）
-  pickCityName(address) {
-    if (!address || typeof address !== 'object') return '';
-    return address.city || address.town || address.village || address.municipality || address.county || address.state || '';
-  },
-
-  fetchCityAndWeather(latitude, longitude) {
-    const that = this;
-    const reverseUrl = `${NOMINATIM_REVERSE}?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`;
-    wx.request({
-      url: reverseUrl,
-      method: 'GET',
-      header: { 'User-Agent': 'MiniProgramFortune/1.0' },
-      success(res) {
-        console.log(res);
-        const cityName = res.statusCode === 200 && res.data ? that.pickCityName(res.data.address) : '';
-        console.log('The city name is ', cityName);
-        that.setData({ cityName });
-        that.callOpenMeteo(latitude, longitude);
-      },
-      fail() {
-        that.setData({ cityName: '' });
-        that.callOpenMeteo(latitude, longitude);
-      }
-    });
-  },
-
   callOpenMeteo(latitude, longitude) {
     const url = `${OPEN_METEO_BASE}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code`;
     wx.request({
