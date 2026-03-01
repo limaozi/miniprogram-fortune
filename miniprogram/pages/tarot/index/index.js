@@ -57,7 +57,38 @@ let boxHeightOffset = 0; // 正值表示高度增加
 let isDraggingBox = false; // 是否正在拖拽分析框（而不是滚动内容）
 let dragStartHeight = 0; // 开始拖拽时的分析框高度
 
+// 过滤 API 响应文本
+// 1. 移除 </think> 及之前的所有内容
+// 2. 移除全是英文的段落
+function filterAnalysisText(text) {
+  if (!text) return text;
 
+  // 第一步：移除 </think> 及之前的所有内容
+  const thinkIndex = text.indexOf('</think>');
+  if (thinkIndex !== -1) {
+    text = text.substring(thinkIndex + 8); // 8 是 '</think>'.length
+  }
+
+  // 第二步：移除全是英文的段落
+  // 将文本按段落分割（以换行符或句号等分割）
+  const paragraphs = text.split(/(\n\n+)/); // 保留分隔符
+  const filteredParagraphs = paragraphs.map((para) => {
+    if (para.match(/^\n+$/)) return para; // 保留空行分隔符
+    
+    // 检查段落是否是全英文（只包含英文字母、数字、标点等，没有中文）
+    const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/g.test(para);
+    
+    if (!hasChinese && para.trim().length > 0) {
+      // 这个段落全是英文，移除它
+      return '';
+    }
+    return para;
+  });
+
+  // 拼接回来，并清理多余的空行
+  const result = filteredParagraphs.join('').replace(/\n\n\n+/g, '\n\n').trim();
+  return result;
+}
 
 // ----------------- 绘制 UI -----------------
 
@@ -620,19 +651,40 @@ function callDeepseek(spreadKey, drawResult) {
     nameZh: item.card.nameZh,
     reversed: !!item.reversed
   }));
-
+  
+  // 获取全局日期和季节信息
   const app = getApp();
   const global = app && app.globalData ? app.globalData : {};
-  const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;  
-  // Create a prompt that analyzes all cards combined together
-  const prompt = `You are a professional tarot reader.
-Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). 
-Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese of 150-200 words. Focus on how these cards interact and what they mean when combined， and analyze user's fortune in this specific date. Make the response feminine and encouraging, use emoji and line breaks, and write in a natural conversational style. Do not include any thinking or reasoning process - only provide the final interpretation.
+  const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
+  
+  // 从currentDateStr提取年月日
+  const dateParts = currentDateStr ? currentDateStr.split('-') : [];
+  const currentYear = dateParts[0] || new Date().getFullYear();
+  const currentMonth = dateParts[1] ? parseInt(dateParts[1]) : (new Date().getMonth() + 1);
+  const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][currentMonth - 1];
+  
+  // Create a prompt that analyzes all cards combined together with monthly fortune
+  const prompt = `Based on the following tarot cards drawn together, provide a comprehensive analysis in Chinese. Focus on how these cards interact and what they mean when combined.
 
-Cards:
-${createDetailedPrompt(cardsdraw)}
+IMPORTANT - Monthly Fortune Analysis for ${monthName} ${currentYear}:
+Today is ${currentDateStr}, which is ${currentSeasonZh || 'the current season'}.
+You MUST include a detailed monthly fortune analysis based on the tarot cards:
+- 财运运势 (Financial Fortune): What do these cards reveal about wealth and financial opportunities this month?
+- 事业运势 (Career Fortune): How do the cards indicate your career prospects and work developments this month?
+- 爱情运势 (Love Fortune): What do the cards suggest about your romantic relationships and love life this month?
+- 健康运势 (Health Fortune): What guidance do these cards offer regarding your physical and mental health?
+- 幸运日期 (Lucky Days): Based on the cards, suggest the most auspicious days this month
+- 核心建议 (Core Advice): What is the main message or guidance from these cards?
 
-Please provide an integrated interpretation of all these cards together:`;
+Format requirements:
+- Start with an integrated interpretation of all these cards (100-150 words)
+- Then provide a detailed monthly fortune analysis for ${monthName} ${currentYear} (200-300 words)
+- Make the response feminine and encouraging
+- Use emoji and line breaks throughout
+- Write in a natural conversational style
+- Do not include any thinking or reasoning process - only provide the final interpretation
+
+Cards:\n${createDetailedPrompt(cardsdraw)}\n\nPlease provide a comprehensive integrated interpretation of all these cards together and a detailed monthly fortune analysis:`;
   
   console.log('[callDeepseek] 请求参数:', { spread: spreadKey, prompt });
   
@@ -644,7 +696,7 @@ Please provide an integrated interpretation of all these cards together:`;
     })
     .catch(err => {
       console.error('[callDeepseek] API 调用失败:', err);
-      return '网络请求失败，请稍后再试';
+      return err.message || '无法生成解析';
     });
 }
 
@@ -779,7 +831,7 @@ Page({
     }
     
     // 检查是否在分析框内（用于拖拽滚动内容）
-    if (box && x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
+    if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
       isTouchingAnalysis = true;
       touchStartY = y;
       touchStartScroll = analysisScroll;
@@ -969,6 +1021,8 @@ Page({
           }
           animationTimer = null;
         }
+        // 过滤 API 响应文本
+        text = filterAnalysisText(text);
         lastAnalysis = text;
         // 保存到全局数据
         const app = getApp();
@@ -996,15 +1050,8 @@ Page({
           }
           animationTimer = null;
         }
-        // 显示错误消息
-        lastAnalysis = '网络请求失败，请稍后再试';
-        const app = getApp();
-        if (app.globalData) {
-          app.globalData.lastAnalysis = lastAnalysis;
-        }
         this.setData({
-          isLoading: false,
-          analysisText: lastAnalysis
+          isLoading: false
         });
         render();
       });

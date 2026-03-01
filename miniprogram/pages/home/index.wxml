@@ -18,7 +18,7 @@
     <text class="season-text">暂无天气信息</text>
   </view>
   <view class="weather-row">
-    <text class="weather-city">进入下面的测试，解锁当月运势</text>
+    <text class="weather-city">进入下方测试，解锁当月运势</text>
   </view>
   <!-- 五瓣梅花布局 -->
   <view class="plum-container">

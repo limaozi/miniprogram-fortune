@@ -439,18 +439,41 @@ Page({
     const app = getApp();
     const global = app && app.globalData ? app.globalData : {};
     const { currentDateStr, currentSeasonEn, currentSeasonZh } = global;
+    
+    // 从currentDateStr提取年月日
+    const dateParts = currentDateStr ? currentDateStr.split('-') : [];
+    const currentYear = dateParts[0] || new Date().getFullYear();
+    const currentMonth = dateParts[1] ? parseInt(dateParts[1]) : (new Date().getMonth() + 1);
+    const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][currentMonth - 1];
+    
     // Call DeepSeek API to generate constellation results
     const prompt = `You are an expert astrologer.
-Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate an encouraging explanation of 150-200 words, describing the characteristics and strengths of this constellation in a warm, positive, and encouraging tone. 
-The description should have a few paragraphs, emoji, bullet points, and so on to make it more like a response from a human being.
-Today is ${currentDateStr}, and the current season is ${currentSeasonEn || 'unknown'} (${currentSeasonZh || ''}). Analyze user's fortune in this month, and advice suitable suggestion for this specific date and month. 
+Based on the birthday ${selectedYear}-${selectedMonth}-${selectedDay} and gender ${selectedGender === 'male' ? 'male' : 'female'}, determine the constellation type in both Chinese and Latin (separated by a dash), and generate a comprehensive fortune reading in Chinese.
+
+IMPORTANT - Monthly Fortune Analysis:
+Today is ${currentDateStr} (${monthName} ${currentYear}), which is ${currentSeasonZh || 'the current season'}.
+You MUST analyze and include this month's fortune in detail:
+- 财运运势 (Financial Fortune): Predict financial trends and wealth opportunities this month
+- 事业运势 (Career Fortune): Analyze career prospects, work opportunities, and professional developments
+- 爱情运势 (Love Fortune): Discuss romantic relationships and emotional connections
+- 健康运势 (Health Fortune): Address physical and mental well-being
+- 幸运日期 (Lucky Days): Suggest the most auspicious days this month
+- 需要注意的事项 (Precautions): Provide warnings or areas to be careful about
+
+Format:
+- Start with the constellation characteristics and overall description (150-200 words)
+- Then provide a detailed monthly fortune analysis for ${monthName} ${currentYear}
+- Use emoji, bullet points, and paragraph breaks to make it feel like a human response
+- Keep the tone warm, positive, and encouraging throughout
+- The description should be detailed and comprehensive
+
 Return format should be a JSON object:
 {
-  "type": "constellation type in Chinese and constellation type in Latin, separated by a dash  (e.g., 白羊座 - Aries)",
-  "description": "encouraging explanation text"
+  "type": "constellation type in Chinese and constellation type in Latin, separated by a dash (e.g., 白羊座 - Aries)",
+  "description": "comprehensive fortune reading including both constellation characteristics and monthly fortune analysis"
 }
 
-IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written in Chinese. Only return the JSON object, no other text.`;
+IMPORTANT: The type should include both Chinese and Latin names separated by a dash, the description must be written entirely in Chinese. Only return the JSON object, no other text.`;
     
     app.callDeepseekAPI(prompt)
       .then(response => {
