@@ -1,0 +1,64 @@
+.container {
+  padding: 60rpx 40rpx;
+}
+
+.title {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 20rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  margin-bottom: 80rpx;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.story-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.story-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 40rpx;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.story-card:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.story-icon {
+  font-size: 80rpx;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.story-name {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 16rpx;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.story-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  line-height: 1.6;
+  font-family: 'PingFang SC', sans-serif;
+}

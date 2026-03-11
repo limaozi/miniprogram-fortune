@@ -1,0 +1,65 @@
+<!-- 问卷页面 -->
+<view class="container">
+  <view class="header">
+    <view class="title">命运抉择</view>
+    <view class="subtitle">{{characterName}} · {{storyName}}</view>
+    <view class="progress">问题 {{currentIndex + 1}} / {{questions.length}}</view>
+  </view>
+
+  <!-- 生成问题的加载状态 -->
+  <view class="loading-container" wx:if="{{generateLoading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">AI正在为您生成命运抉择问题...</text>
+  </view>
+
+  <view class="question-container" wx:if="{{!showResult && !isLoading && !generateLoading}}">
+    <view class="question-card">
+      <view class="question-number">第 {{currentIndex + 1}} 题</view>
+      <view class="question-text">{{questions[currentIndex].question}}</view>
+      
+      <view class="options-container">
+        <view 
+          class="option-item {{selectedAnswer === index ? 'selected' : ''}}" 
+          wx:for="{{questions[currentIndex].options}}" 
+          wx:key="index"
+          wx:for-index="index"
+          bindtap="selectOption" 
+          data-index="{{index}}">
+          <view class="option-indicator">
+            <view class="option-circle {{selectedAnswer === index ? 'checked' : ''}}">
+              <view class="option-checkmark" wx:if="{{selectedAnswer === index}}"></view>
+            </view>
+          </view>
+          <view class="option-text">{{item}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="button-group">
+      <button class="nav-button prev-button" wx:if="{{currentIndex > 0}}" bindtap="prevQuestion">上一题</button>
+      <button class="nav-button next-button" wx:if="{{currentIndex < questions.length - 1}}" bindtap="nextQuestion" disabled="{{selectedAnswer === null}}">下一题</button>
+      <button class="nav-button submit-button" wx:if="{{currentIndex === questions.length - 1}}" bindtap="submitAnswers" disabled="{{selectedAnswer === null}}">查看命运</button>
+    </view>
+  </view>
+
+  <!-- Spinner moved to the bottom -->
+  <view class="spinner-bottom">
+    <view class="loading-container" wx:if="{{isLoading && !generateLoading}}">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">AI正在分析您的命运...</text>
+    </view>
+  </view>
+
+  <view class="result-container" wx:if="{{showResult}}">
+    <view class="result-content">
+      <view class="result-card">
+        <view class="result-icon">{{resultIcon}}</view>
+        <view class="result-type">{{resultTitle}}</view>
+        <view class="result-description">{{resultContent}}</view>
+      </view>
+    </view>
+    <view class="result-buttons">
+      <button class="retry-button" bindtap="retry">重新测试</button>
+    </view>
+  </view>
+</view>

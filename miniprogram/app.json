@@ -7,7 +7,10 @@
     "pages/constellation/index",
     "pages/style/index",
     "pages/love/index/index",
-    "pages/love/analysis/index"
+    "pages/love/analysis/index",
+    "pages/destiny/select-story/index",
+    "pages/destiny/select-character/index",
+    "pages/destiny/questionnaire/index"
   ],
   "permission": {
     "scope.userLocation": {

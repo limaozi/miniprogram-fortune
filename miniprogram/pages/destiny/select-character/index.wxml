@@ -1,0 +1,13 @@
+<!-- 选择角色页面 -->
+<view class="container">
+  <view class="title">选择角色</view>
+  <view class="subtitle">{{storyName}}</view>
+  
+  <view class="character-list">
+    <view class="character-card" wx:for="{{characters}}" wx:key="id" bindtap="selectCharacter" data-id="{{item.id}}">
+      <view class="character-avatar">{{item.avatar}}</view>
+      <view class="character-name">{{item.name}}</view>
+      <view class="character-desc">{{item.desc}}</view>
+    </view>
+  </view>
+</view>

@@ -3,13 +3,53 @@ var QQMapWX = require('./lib/qqmap-wx-jssdk.js');
 var qqmapsdk;
 const OPEN_METEO_BASE = 'https://api.open-meteo.com/v1/forecast';
 const WX_LOCATION_KEY = 'F4SBZ-SY6LJ-LHCFC-XFRW7-2CNC5-YHBYX';
-const NVIDIA_DEEPSEEK_API_KEY = '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';
-const DEEPSEEK_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const AI_MODEL = 'deepseek-ai/deepseek-r1-distill-qwen-14b';
-// API Key encoded in Base64 (encrypted)
-const ENCRYPTED_API_KEY = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
 
-// WMO 天气现象代码 -> 简短中文描述
+// 测试环境配置
+const IS_TEST_ENV = true; // 设置为 false 使用生产环境
+
+// 生产环境配置
+const DEEPSEEK_API_URL_PROD = 'https://api.deepseek.com/v1/chat/completions';
+const AI_MODEL_PROD = 'deepseek-chat';
+const ENCRYPTED_API_KEY_PROD = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
+
+// 测试环境配置
+const DEEPSEEK_API_URL_TEST = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const AI_MODEL_TEST = 'deepseek-ai/deepseek-r1-distill-qwen-14b';
+const DEEPSEEK_API_KEY_TEST = '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';
+
+// 根据环境选择配置
+const DEEPSEEK_API_URL = IS_TEST_ENV ? DEEPSEEK_API_URL_TEST : DEEPSEEK_API_URL_PROD;
+const AI_MODEL = IS_TEST_ENV ? AI_MODEL_TEST : AI_MODEL_PROD;
+
+// Helper function to decode Base64
+const decodeBase64 = (encoded) => {
+  try {
+    return wx.getStorageSync('_temp_' + Math.random()) ? '' : atob(encoded);
+  } catch (e) {
+    // Fallback for WeChat mini program
+    const binaryString = wx.getStorageSync('_b64_' + encoded);
+    if (binaryString) return binaryString;
+    
+    let binary = '';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    for (let i = 0; i < encoded.length; i++) {
+      const bit1 = chars.indexOf(encoded.charAt(i));
+      const bit2 = chars.indexOf(encoded.charAt(++i));
+      const bit3 = chars.indexOf(encoded.charAt(++i));
+      const bit4 = chars.indexOf(encoded.charAt(++i));
+      
+      const b1 = (bit1 << 2) | (bit2 >> 4);
+      const b2 = ((bit2 & 0xF) << 4) | (bit3 >> 2);
+      const b3 = ((bit3 & 0x3) << 6) | bit4;
+      
+      binary += String.fromCharCode(b1);
+      if (bit3 !== 64) binary += String.fromCharCode(b2);
+      if (bit4 !== 64) binary += String.fromCharCode(b3);
+    }
+    return binary;
+  }
+};
+
 function weatherCodeToText(code) {
   if (code == null) return '—';
   const map = {
@@ -74,44 +114,15 @@ function filterAnalysisText(text) {
   const result = filteredParagraphs.join('').replace(/\n\n\n+/g, '\n\n').trim();
   return result;
 }
-// Helper function to decode Base64
-const decodeBase64 = (encoded) => {
-  try {
-    return wx.getStorageSync('_temp_' + Math.random()) ? '' : atob(encoded);
-  } catch (e) {
-    // Fallback for WeChat mini program
-    const binaryString = wx.getStorageSync('_b64_' + encoded);
-    if (binaryString) return binaryString;
-    
-    let binary = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-    for (let i = 0; i < encoded.length; i++) {
-      const bit1 = chars.indexOf(encoded.charAt(i));
-      const bit2 = chars.indexOf(encoded.charAt(++i));
-      const bit3 = chars.indexOf(encoded.charAt(++i));
-      const bit4 = chars.indexOf(encoded.charAt(++i));
-      
-      const b1 = (bit1 << 2) | (bit2 >> 4);
-      const b2 = ((bit2 & 0xF) << 4) | (bit3 >> 2);
-      const b3 = ((bit3 & 0x3) << 6) | bit4;
-      
-      binary += String.fromCharCode(b1);
-      if (bit3 !== 64) binary += String.fromCharCode(b2);
-      if (bit4 !== 64) binary += String.fromCharCode(b3);
-    }
-    return binary;
-  }
-};
 
-const DEEPSEEK_API_URL_2 = 'https://api.deepseek.com/v1/chat/completions';
-const AI_MODEL_2 = 'deepseek-chat';
-
-// 调用DeepSeek API
 // 获取位置和天气信息
 const fetchLocationAndWeather = (app) => {
   qqmapsdk = new QQMapWX({
     key: WX_LOCATION_KEY
   });
+  
+  app.globalData.cityLoading = true;
+  app.globalData.weatherLoading = true;
   
   wx.getLocation({
     type: 'gcj02',
@@ -138,14 +149,18 @@ const fetchLocationAndWeather = (app) => {
           const displayName = district ? (city + district) : city;
           console.log('解析后的地址:', displayName);
           app.globalData.cityName = displayName || '';
+          app.globalData.cityLoading = false;
         },
         fail: (error) => {
           console.error('地址解析失败:', error);
+          app.globalData.cityLoading = false;
         }
       });
     },
     fail: (err) => {
       console.log('获取位置失败', err);
+      app.globalData.cityLoading = false;
+      app.globalData.weatherLoading = false;
     }
   });
 };
@@ -163,11 +178,15 @@ const callOpenMeteo = (latitude, longitude, app) => {
         const text = weatherCodeToText(cur.weather_code);
         app.globalData.weatherText = text;
         app.globalData.weatherTemp = temp;
+        app.globalData.weatherLoading = false;
         console.log('天气信息已更新:', { text, temp });
+      } else {
+        app.globalData.weatherLoading = false;
       }
     },
     fail: () => {
       console.error('获取天气失败');
+      app.globalData.weatherLoading = false;
     }
   });
 };
@@ -180,106 +199,71 @@ const callDeepseekAPI = (prompt, options = {}) => {
         return;
       }
 
-      let requestId = Math.random();
+      const url = DEEPSEEK_API_URL;
+      const model = AI_MODEL;
+      
+      // 根据环境获取 API Key
+      let apiKey;
+      if (IS_TEST_ENV) {
+        apiKey = DEEPSEEK_API_KEY_TEST;
+      } else {
+        apiKey = decodeBase64(ENCRYPTED_API_KEY_PROD);
+      }
+
       let hasResponded = false;
-
-      const makeRequest = (url, apiKey, model) => {
-        if (typeof url === 'undefined') {
-          console.error('[callDeepseekAPI] ENCRYPTED_API_KEY 未定义');
-          reject(new Error('API密钥配置错误'));
+      const timeoutTimer = setTimeout(() => {
+        if (!hasResponded) {
+          hasResponded = true;
+          console.error('[callDeepseekAPI] API 请求超时');
+          reject(new Error('API 请求超时'));
         }
-        const currentRequestId = requestId;
-        const timeoutTimer = setTimeout(() => {
-          if (!hasResponded && currentRequestId === requestId) {
-            hasResponded = true;
-            console.log('[callDeepseekAPI] 第一个API超时，切换到备用地址');
-            
-            // If this is the first URL, try the second one
-            if (url === DEEPSEEK_API_URL) {
-              requestId = Math.random();
-              hasResponded = false; // Reset for the retry attempt
-              makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-              
+      }, 60000);
+
+      wx.request({
+        url: url,
+        method: 'POST',
+        header: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          model: model,
+          messages: [
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+          top_p: 0.8,
+          max_tokens: 4096,
+          stream: false
+        },
+        success: (res) => {
+          if (!hasResponded) {
+            clearTimeout(timeoutTimer);
+            console.log('[callDeepseekAPI] API 响应:', res);
+            if (res.statusCode === 200 && res.data) {
+              const content = res.data.choices?.[0]?.message?.content || '';
+              if (content) {
+                resolve(filterAnalysisText(content));
+              } else {
+                console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
+                reject(new Error('API 返回数据格式异常'));
+              }
             } else {
-              reject(new Error('所有API请求均超时'));
+              console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
+              reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
             }
+            hasResponded = true;
           }
-        }, 30000); // 20 seconds timeout
-
-        wx.request({
-          url: url,
-          method: 'POST',
-          header: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          data: {
-            model: model,
-            messages: [
-              { role: 'system', content: prompt }
-            ],
-            temperature: 0.7,
-            top_p: 0.8,
-            max_tokens: 4096,
-            stream: false
-          },
-          success: (res) => {
-            if (!hasResponded && currentRequestId === requestId) {
-              
-              clearTimeout(timeoutTimer);
-              console.log('[callDeepseekAPI] API 响应:', res);
-              if (res.statusCode === 200 && res.data) {
-                const content = res.data.choices?.[0]?.message?.content || '';
-                if (content) {
-                  resolve(filterAnalysisText(content));
-                  hasResponded = true;
-                } else {  
-                  console.error('[callDeepseekAPI] 响应中没有内容:', res.data);
-                  if (url === DEEPSEEK_API_URL) {
-                    console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
-                    requestId = Math.random();
-                    hasResponded = false; // Reset for the retry attempt
-                    makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-                  }
-                  else{
-                    reject(new Error('API 返回数据格式异常'));
-                  }
-                }
-              } else {
-                console.error('[callDeepseekAPI] API 请求失败:', res.statusCode, res.data);
-                if (url === DEEPSEEK_API_URL) {
-                  console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
-                  requestId = Math.random();
-                  hasResponded = false; // Reset for the retry attempt
-                  makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-                }
-                else{
-                  reject(new Error(`API 请求失败 (状态码: ${res.statusCode})`));
-                }
-              }
-            }
-          },
-          fail: (err) => {
-            if (!hasResponded && currentRequestId === requestId) {
-              hasResponded = true;
-              clearTimeout(timeoutTimer);
-              console.error('[callDeepseekAPI] 请求失败:', err);
-              
-              // If this is the first URL, try the second one
-              if (url === DEEPSEEK_API_URL) {
-                console.log('[callDeepseekAPI] 第一个API失败，切换到备用地址');
-                requestId = Math.random();
-                makeRequest(DEEPSEEK_API_URL_2, decodeBase64(ENCRYPTED_API_KEY), AI_MODEL_2);
-                
-              } else {
-                reject(new Error('网络请求失败'));
-              }
-            }
+        },
+        fail: (err) => {
+          if (!hasResponded) {
+            clearTimeout(timeoutTimer);
+            hasResponded = true;
+            console.error('[callDeepseekAPI] 请求失败:', err);
+            reject(new Error('网络请求失败'));
           }
-        });
-      };
-
-      makeRequest(DEEPSEEK_API_URL, NVIDIA_DEEPSEEK_API_KEY, AI_MODEL);
+        }
+      });
     } catch (e) {
       console.error('[callDeepseekAPI] 调用出错:', e);
       reject(e);
@@ -325,7 +309,9 @@ App({
       currentSeasonZh,
       cityName: '', // 地区
       weatherText: '', // 天气描述
-      weatherTemp: '' // 温度
+      weatherTemp: '', // 温度
+      cityLoading: true, // 地区解析加载状态
+      weatherLoading: true // 天气解析加载状态
     };
     
     if (!wx.cloud) {

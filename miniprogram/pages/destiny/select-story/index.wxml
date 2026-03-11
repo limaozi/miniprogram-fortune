@@ -1,0 +1,13 @@
+<!-- 选择作品页面 -->
+<view class="container">
+  <view class="title">选择一部作品</view>
+  <view class="subtitle">探索经典角色的命运轨迹</view>
+  
+  <view class="story-list">
+    <view class="story-card" wx:for="{{stories}}" wx:key="id" bindtap="selectStory" data-id="{{item.id}}">
+      <view class="story-icon">{{item.icon}}</view>
+      <view class="story-name">{{item.name}}</view>
+      <view class="story-desc">{{item.desc}}</view>
+    </view>
+  </view>
+</view>

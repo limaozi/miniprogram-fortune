@@ -1,0 +1,66 @@
+.container {
+  padding: 60rpx 40rpx;
+}
+
+.title {
+  font-size: 56rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 20rpx;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  margin-bottom: 60rpx;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.character-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30rpx;
+}
+
+.character-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 40rpx 20rpx;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.character-card:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.character-avatar {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.character-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 12rpx;
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.character-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  line-height: 1.5;
+  font-family: 'PingFang SC', sans-serif;
+}

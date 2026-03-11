@@ -7,8 +7,8 @@ Page({
     cityName: '',
     weatherText: '',
     weatherTemp: '',
-    weatherLoading: true,
-    weatherError: false
+    cityLoading: true,
+    weatherLoading: true
   },
 
   onLoad() {
@@ -18,10 +18,10 @@ Page({
     
     // 轮询检查位置和天气数据是否已准备好
     const checkDataReady = setInterval(() => {
-      const hasWeatherData = app.globalData.weatherText && app.globalData.weatherTemp;
-      const hasCityData = app.globalData.cityName;
+      const hasCityData = app.globalData.cityName && !app.globalData.cityLoading;
+      const hasWeatherData = (app.globalData.weatherText || app.globalData.weatherTemp) && !app.globalData.weatherLoading;
       
-      if (hasWeatherData && hasCityData) {
+      if ((hasCityData || !app.globalData.cityLoading) && (hasWeatherData || !app.globalData.weatherLoading)) {
         clearInterval(checkDataReady);
         this.updateLocationAndWeather();
       }
@@ -39,7 +39,7 @@ Page({
   updateLocationAndWeather() {
     const app = getApp();
     const global = app && app.globalData ? app.globalData : {};
-    const { currentDateStr, currentSeasonZh, cityName, weatherText, weatherTemp } = global;
+    const { currentDateStr, currentSeasonZh, cityName, weatherText, weatherTemp, cityLoading, weatherLoading } = global;
 
     this.setData({
       currentDateStr,
@@ -47,8 +47,8 @@ Page({
       cityName,
       weatherText,
       weatherTemp,
-      weatherLoading: !(weatherText && weatherTemp && cityName),
-      weatherError: false
+      cityLoading: cityLoading === true,
+      weatherLoading: weatherLoading === true
     });
   },
 
@@ -81,6 +81,13 @@ Page({
   goToLove() {
     wx.navigateTo({
       url: '/pages/love/index/index'
+    });
+  },
+
+  // 跳转到角色命运页面
+  goToDestiny() {
+    wx.navigateTo({
+      url: '/pages/destiny/select-story/index'
     });
   },
 });
