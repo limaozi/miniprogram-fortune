@@ -66,25 +66,24 @@ Page({
   },
 
   generateQuestions(storyId, characterId, characterInfo) {
-    const prompt = `你是一位精通中国古典文学和影视作品的创意设计师。请为《${this.data.storyName}》中的角色"${characterInfo.name}"生成5个命运抉择问题。
+    const prompt = `You are a creative designer expert in classical Chinese literature and TV dramas. Generate 5 destiny choice questions for the character "${characterInfo.name}" from "《${this.data.storyName}》".
 
-角色背景：${characterInfo.desc}
+Character Background: ${characterInfo.desc}
 
-要求：
-1. 针对这个角色的性格特点、故事背景和人生抉择生成5个问题
-2. 每个问题应是故事中的重大节点或人生转折点
-3. 每个问题有4-5个选项
-4. 选项应该是这个角色在该情境中可能做出的具体行动
-5. 问题应该富有文学性和戏剧性，能引发思考
+Requirements:
+1. Create 5 questions based on the character's personality, story background, and life choices
+2. Each question represents a major plot point or life turning point in the story
+3. Each question has 4-5 options (all in Chinese)
+4. Options should be specific actions this character might take in that situation
+5. Questions should be literary and dramatic, thought-provoking and engaging
 
-严格按照以下JSON格式输出（只输出JSON，不要其他内容）：
+Return ONLY valid JSON (no other text) in this exact format:
 {
   "questions": [
     {
-      "question": "问题文本",
-      "options": ["选项1", "选项2", "选项3", "选项4"]
-    },
-    ...
+      "question": "问题文本（中文）",
+      "options": ["选项1（中文）", "选项2（中文）", "选项3（中文）", "选项4（中文）"]
+    }
   ]
 }`;
 
@@ -200,26 +199,32 @@ Page({
   analyzeDestiny() {
     const { questions, answers, characterName, storyName } = this.data;
     
-    // 构建问答对
+    // 构建问答对（中文）
     const qaList = questions.map((q, index) => {
-      return `问题${index + 1}: ${q.question}\n你的选择: ${q.options[answers[index]]}`;
+      return `Question ${index + 1}: ${q.question}\nYour choice: ${q.options[answers[index]]}`;
     }).join('\n\n');
 
     // 构建 prompt
-    const prompt = `你是一位精通中国古典文学和影视作品的命运分析师。现在有一位用户选择扮演《${storyName}》中的角色"${characterName}"，并回答了以下人生抉择问题：
+    const prompt = `You are a destiny analyst expert in classical Chinese literature and TV dramas. A user chose to play the character "${characterName}" from "《${storyName}》" and answered the following life choice questions:
 
 ${qaList}
 
-请根据用户的选择，分析如果用户是${characterName}，会有什么样的命运走向。要求：
-1. 结合${characterName}在原作中的性格特点和命运轨迹
-2. 根据用户的选择，分析会导致什么样的命运结果
-3. 给出一个命运类型标题（4-6个字，富有诗意）
-4. 写一段200-300字的命运分析，要有文学性和深度
-5. 回答格式严格按照：
-标题：[命运类型]
-分析：[详细的命运分析内容]
+Based on the user's choices, analyze what kind of destiny path this character would have. 
 
-请直接输出，不要有其他多余内容。`;
+Requirements (respond in Chinese):
+1. Combine ${characterName}'s personality traits and destiny trajectory from the original work
+2. Based on user's choices, analyze the resulting destiny outcome
+3. Give a poetic destiny title (4-6 Chinese characters)
+4. Write a 200-300 word analysis with literary depth and thoughtfulness
+5. Use line breaks and emojis to make the response feel human-like and engaging
+6. Include encouraging comments about the user's choices where appropriate
+7. Response format should be clear and easy to understand
+
+Output format (respond ONLY in this format):
+标题：[Destiny type title]
+分析：[Detailed analysis with paragraphs and emojis]
+
+Return ONLY the formatted response, no extra content.`;
 
     const app = getApp();
     app.callDeepseekAPI(prompt)

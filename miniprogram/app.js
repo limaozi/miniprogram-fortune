@@ -14,8 +14,8 @@ const ENCRYPTED_API_KEY_PROD = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=
 
 // 测试环境配置
 const DEEPSEEK_API_URL_TEST = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const AI_MODEL_TEST = 'deepseek-ai/deepseek-r1-distill-qwen-14b';
-const DEEPSEEK_API_KEY_TEST = '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';
+const AI_MODEL_TEST = 'deepseek-ai/deepseek-v3.1';
+const DEEPSEEK_API_KEY_TEST = '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';
 
 // 根据环境选择配置
 const DEEPSEEK_API_URL = IS_TEST_ENV ? DEEPSEEK_API_URL_TEST : DEEPSEEK_API_URL_PROD;
@@ -271,8 +271,148 @@ const callDeepseekAPI = (prompt, options = {}) => {
   });
 };
 
+// ===== Destiny Page Data and Utilities =====
+const DESTINY_STORIES = [
+  {
+    id: 'hongloumeng',
+    name: '红楼梦',
+    icon: '🏮',
+    desc: '四大名著之首，封建社会的百科全书'
+  },
+  {
+    id: 'zhenhuanzhuan',
+    name: '甄嬛传',
+    icon: '👑',
+    desc: '宫廷权谋，女性成长史诗'
+  },
+  {
+    id: 'zhifou',
+    name: '知否知否应是绿肥红瘦',
+    icon: '🌸',
+    desc: '古代女性的智慧与抉择'
+  }
+];
+
+const DESTINY_CHARACTERS = {
+  hongloumeng: {
+    name: '红楼梦',
+    characters: [
+      { id: 'lind', name: '林黛玉', avatar: '🌺', desc: '才华横溢，敏感多情' },
+      { id: 'baoc', name: '贾宝玉', avatar: '💎', desc: '叛逆不羁，情深意重' },
+      { id: 'xueb', name: '薛宝钗', avatar: '🦋', desc: '端庄贤淑，处事圆融' },
+      { id: 'wangx', name: '王熙凤', avatar: '👸', desc: '精明能干，权谋高手' }
+    ]
+  },
+  zhenhuanzhuan: {
+    name: '甄嬛传',
+    characters: [
+      { id: 'zhenh', name: '甄嬛', avatar: '👑', desc: '从天真到成熟的蜕变' },
+      { id: 'huanghou', name: '皇后', avatar: '🦚', desc: '高贵冷艳，心机深沉' },
+      { id: 'huafei', name: '华妃', avatar: '🔥', desc: '骄纵跋扈，爱恨分明' },
+      { id: 'jingfei', name: '敬妃', avatar: '🌙', desc: '温柔善良，隐忍坚韧' }
+    ]
+  },
+  zhifou: {
+    name: '知否知否应是绿肥红瘦',
+    characters: [
+      { id: 'minglan', name: '盛明兰', avatar: '🌸', desc: '聪慧隐忍，步步为营' },
+      { id: 'molan', name: '盛墨兰', avatar: '🥀', desc: '野心勃勃，不择手段' },
+      { id: 'rulan', name: '盛如兰', avatar: '🌼', desc: '直率真诚，敢爱敢恨' },
+      { id: 'hualan', name: '盛华兰', avatar: '🌹', desc: '温婉大气，持家有道' }
+    ]
+  }
+};
+
+const DESTINY_CHARACTER_INFO = {
+  hongloumeng: {
+    lind: { name: '林黛玉', desc: '才华横溢、敏感多情的女子，红楼梦中的悲剧人物' },
+    baoc: { name: '贾宝玉', desc: '木石前盟的痴情公子，反叛传统但又不得不接受命运' },
+    xueb: { name: '薛宝钗', desc: '端庄贤淑、处事圆融的公侯千金' },
+    wangx: { name: '王熙凤', desc: '精明能干、权谋高手、贾府的实际管理者' }
+  },
+  zhenhuanzhuan: {
+    zhenh: { name: '甄嬛', desc: '从天真少女到后宫之主的蜕变者，经历过陷害、复仇與权谋' },
+    huanghou: { name: '皇后', desc: '高贵冷艳、心机深沉的皇后，为维护地位不惜一切' },
+    huafei: { name: '华妃', desc: '骄纵跋扈、爱恨分明的妃嫔，权势者的悲剧' },
+    jingfei: { name: '敬妃', desc: '温柔善良、隐忍坚韧的妃嫔，沉默中蕴含力量' }
+  },
+  zhifou: {
+    minglan: { name: '盛明兰', desc: '聪慧隐忍、步步为营的庶女，用智慧改变命运' },
+    molan: { name: '盛墨兰', desc: '野心勃勃、不择手段的庶女，最终为所作所为付出代价' },
+    rulan: { name: '盛如兰', desc: '直率真诚、敢爱敢恨的二女儿' },
+    hualan: { name: '盛华兰', desc: '温婉大气、持家有道的长女' }
+  }
+};
+
+const DESTINY_STORY_NAMES = {
+  hongloumeng: '红楼梦',
+  zhenhuanzhuan: '甄嬛传',
+  zhifou: '知否知否应是绿肥红瘦'
+};
+
+const DESTINY_DEFAULT_QUESTIONS = [
+  { question: '面对生活中的重大抉择，你会？', options: ['顺从本心', '听从劝告', '寻求平衡', '倾听直觉'] },
+  { question: '在利益与信念冲突时，你选择？', options: ['坚守信念', '权衡利益', '寻求折中', '随遇而安'] },
+  { question: '面对误解和指责，你会？', options: ['直言相对', '沉默承受', '冷静化解', '远离喧嚣'] },
+  { question: '在感情与责任之间，你更看重？', options: ['追求感情', '肩负责任', '两者兼顾', '保持独立'] },
+  { question: '面对未知的未来，你的态度是？', options: ['勇敢前行', '谨慎筹谋', '珍惜当下', '接纳变化'] }
+];
+
+const getIconByTitle = (title) => {
+  if (title.includes('勇') || title.includes('开拓') || title.includes('进取')) return '🌟';
+  if (title.includes('智') || title.includes('谋') || title.includes('慧')) return '🌙';
+  if (title.includes('平衡') || title.includes('和') || title.includes('圆满')) return '🌸';
+  if (title.includes('安') || title.includes('静') || title.includes('淡')) return '🍃';
+  if (title.includes('权') || title.includes('势') || title.includes('强')) return '👑';
+  if (title.includes('情') || title.includes('爱') || title.includes('心')) return '💖';
+  if (title.includes('悲') || title.includes('苦') || title.includes('难')) return '🥀';
+  if (title.includes('福') || title.includes('喜') || title.includes('乐')) return '🌺';
+  return '✨';
+};
+
+const parseAnalysisResponse = (response) => {
+  const lines = response.split('\n');
+  let title = '';
+  let content = '';
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('标题：') || line.startsWith('标题:')) {
+      title = line.replace(/^标题[：:]/, '').trim();
+    } else if (line.startsWith('分析：') || line.startsWith('分析:')) {
+      content = line.replace(/^分析[：:]/, '').trim();
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim()) {
+          content += '\n' + lines[j].trim();
+        }
+      }
+      break;
+    }
+  }
+
+  if (!title || !content) {
+    const parts = response.split('\n\n');
+    if (parts.length >= 2) {
+      title = parts[0].replace(/^标题[：:]/, '').trim();
+      content = parts.slice(1).join('\n\n').replace(/^分析[：:]/, '').trim();
+    } else {
+      title = '命运之轮';
+      content = response;
+    }
+  }
+
+  return { title, content };
+};
+
 App({
   callDeepseekAPI: callDeepseekAPI,
+  destinyStories: DESTINY_STORIES,
+  destinyCharacters: DESTINY_CHARACTERS,
+  destinyCharacterInfo: DESTINY_CHARACTER_INFO,
+  destinyStoryNames: DESTINY_STORY_NAMES,
+  destinyDefaultQuestions: DESTINY_DEFAULT_QUESTIONS,
+  getIconByTitle: getIconByTitle,
+  parseAnalysisResponse: parseAnalysisResponse,
   
   onLaunch: function () {
     // 计算当前日期和季节（北半球）
