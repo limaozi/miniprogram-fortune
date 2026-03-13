@@ -1,0 +1,132 @@
+{"frames": [
+
+{
+	"filename": "baochai.png",
+	"frame": {"x":0,"y":0,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "baoyu.png",
+	"frame": {"x":246,"y":0,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "daiyu.png",
+	"frame": {"x":492,"y":0,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "honglou.png",
+	"frame": {"x":0,"y":738,"w":300,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":300,"h":200},
+	"sourceSize": {"w":300,"h":200}
+},
+{
+	"filename": "huafei.png",
+	"frame": {"x":738,"y":0,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "hualan.png",
+	"frame": {"x":0,"y":246,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "huanghou.png",
+	"frame": {"x":246,"y":246,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "jingfei.png",
+	"frame": {"x":492,"y":246,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "minglan.png",
+	"frame": {"x":738,"y":246,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "molan.png",
+	"frame": {"x":0,"y":492,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "rulan.png",
+	"frame": {"x":246,"y":492,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "xifeng.png",
+	"frame": {"x":492,"y":492,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "zhenhuan.png",
+	"frame": {"x":738,"y":492,"w":246,"h":246},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":246,"h":246},
+	"sourceSize": {"w":246,"h":246}
+},
+{
+	"filename": "zhenhuanzhuan.png",
+	"frame": {"x":300,"y":738,"w":300,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":300,"h":200},
+	"sourceSize": {"w":300,"h":200}
+},
+{
+	"filename": "zhifou.png",
+	"frame": {"x":600,"y":738,"w":300,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":300,"h":200},
+	"sourceSize": {"w":300,"h":200}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "destiny.png",
+	"format": "RGBA8888",
+	"size": {"w":984,"h":938},
+	"scale": "0.12",
+	"smartupdate": "$TexturePacker:SmartUpdate:b1b5d4803e3562d97ff5bcf71b75ec81:63e9ee6e208554d57e7d841d446392ec:533e1e56011fdde17c7e71cb012a5680$"
+}
+}
