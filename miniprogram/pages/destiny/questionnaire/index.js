@@ -35,7 +35,10 @@ Page({
     generateLoading: true,
     resultIcon: '',
     resultTitle: '',
-    resultContent: ''
+    resultContent: '',
+    loadingText: '',
+    reviewScrollHeight: 0, // 回顾页面scroll-view高度
+    resultScrollHeight: 0  // 结果页面scroll-view高度
   },
 
   onLoad(options) {
@@ -58,7 +61,9 @@ Page({
       characterId,
       storyName: storyNames[storyId],
       characterName: characterInfo.name,
-      generateLoading: true
+      generateLoading: true,
+      isLoading: true,
+      loadingText: '正在生成命运相关的问题……'
     });
 
     // 生成问题
@@ -77,7 +82,7 @@ Requirements:
 4. Options should be specific actions this character might take in that situation
 5. Questions should be literary and dramatic, thought-provoking and engaging
 
-Return ONLY valid JSON (no other text) in this exact format:
+Return ONLY valid JSON in this exact format:
 {
   "questions": [
     {
@@ -94,18 +99,55 @@ Return ONLY valid JSON (no other text) in this exact format:
         
         let questions = [];
         try {
-          // 尝试提取 JSON
-          const jsonMatch = response.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            questions = parsed.questions || [];
+          // 改进的JSON提取方法：使用括号匹配找到完整的最外层JSON对象
+          const firstBraceIndex = response.indexOf('{');
+          
+          if (firstBraceIndex !== -1) {
+            // 从第一个 { 开始，计算括号匹配来找到对应的 }
+            let braceCount = 0;
+            let lastBraceIndex = -1;
+            
+            for (let i = firstBraceIndex; i < response.length; i++) {
+              const char = response[i];
+              
+              if (char === '{') {
+                braceCount++;
+              } else if (char === '}') {
+                braceCount--;
+                if (braceCount === 0) {
+                  lastBraceIndex = i;
+                  break;
+                }
+              }
+            }
+            
+            if (lastBraceIndex !== -1) {
+              let jsonStr = response.substring(firstBraceIndex, lastBraceIndex + 1);
+              console.log('提取的JSON字符串:', jsonStr.substring(0, 200) + '...');
+              
+              // 清理JSON字符串
+              jsonStr = jsonStr.trim();
+              // 移除BOM字符（如果有）
+              if (jsonStr.charCodeAt(0) === 0xFEFF) {
+                jsonStr = jsonStr.substring(1);
+              }
+              
+              console.log('清理后的JSON长度:', jsonStr.length);
+              
+              const parsed = JSON.parse(jsonStr);
+              questions = parsed.questions || [];
+              console.log('成功解析JSON，获得问题数:', questions.length);
+            }
           }
         } catch (e) {
           console.error('JSON 解析失败:', e);
+          console.error('原始响应长度:', response.length);
+          console.error('错误详情:', e.message);
         }
 
         // 如果解析失败或没有问题，使用备用方案
         if (!questions || questions.length === 0) {
+          console.log('使用备用问题');
           questions = this.getDefaultQuestions(characterInfo.name);
         }
 
@@ -118,6 +160,7 @@ Return ONLY valid JSON (no other text) in this exact format:
         }
 
         this.setData({
+          isLoading: false,
           questions,
           answers: new Array(questions.length).fill(null),
           generateLoading: false
@@ -131,7 +174,8 @@ Return ONLY valid JSON (no other text) in this exact format:
         this.setData({
           questions: defaultQuestions,
           answers: new Array(defaultQuestions.length).fill(null),
-          generateLoading: false
+          generateLoading: false,
+          isLoading: false
         });
         
         wx.showToast({ 
@@ -171,6 +215,13 @@ Return ONLY valid JSON (no other text) in this exact format:
       return;
     }
 
+    // 如果是最后一题，提交答案
+    if (this.data.currentIndex === this.data.questions.length - 1) {
+      this.submitAnswers();
+      return;
+    }
+
+    // 否则进入下一题
     const nextIndex = this.data.currentIndex + 1;
     this.setData({
       currentIndex: nextIndex,
@@ -192,7 +243,10 @@ Return ONLY valid JSON (no other text) in this exact format:
       return;
     }
 
-    this.setData({ isLoading: true });
+    this.setData({ 
+      isLoading: true, 
+      loadingText: '正在分析您的命运和结局...'
+    });
     this.analyzeDestiny();
   },
 
@@ -209,7 +263,7 @@ Return ONLY valid JSON (no other text) in this exact format:
 
 ${qaList}
 
-Based on the user's choices, analyze what kind of destiny path this character would have. 
+Based on the user's choices, analyze what kind of destiny path this character would have and this character's ending. You don't have to follow the original story line. You can estimate the character's ending accoridng his/her decision. 
 
 Requirements (respond in Chinese):
 1. Combine ${characterName}'s personality traits and destiny trajectory from the original work
@@ -224,7 +278,7 @@ Output format (respond ONLY in this format):
 标题：[Destiny type title]
 分析：[Detailed analysis with paragraphs and emojis]
 
-Return ONLY the formatted response, no extra content.`;
+Return ONLY the formatted response, no extra content. And the results must in Chinese`;
 
     const app = getApp();
     app.callDeepseekAPI(prompt)
@@ -271,15 +325,15 @@ Return ONLY the formatted response, no extra content.`;
           resultTitle: title,
           resultContent: content
         });
+        // 延迟更新高度，确保DOM已更新
+        setTimeout(() => {
+          this.updateResultScrollHeight();
+        }, 100);
       })
       .catch(error => {
         console.error('AI分析失败:', error);
         this.setData({ isLoading: false });
-        wx.showToast({ 
-          title: '分析失败，请重试', 
-          icon: 'none',
-          duration: 2000
-        });
+        // API超时或失败时，不显示toast提示
       });
   },
 
@@ -296,7 +350,60 @@ Return ONLY the formatted response, no extra content.`;
     return '✨';
   },
 
+  // 计算并设置回顾页面scroll-view的高度
+  updateReviewScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 100rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx)
+    const headerHeight = 100;
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom;
+    
+    this.setData({
+      reviewScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+  },
+
+  // 计算并设置结果页面scroll-view的高度
+  updateResultScrollHeight() {
+    const sys = wx.getSystemInfoSync();
+    const windowHeight = sys.windowHeight || 667;
+    const rpxRatio = 750 / sys.windowWidth;
+    // 计算可用高度：窗口高度 - 头部高度(约 100rpx) - 顶部padding(40rpx) - 底部padding(40rpx) - header margin-bottom(30rpx) - 按钮区域(约 240rpx) - 按钮gap(15rpx)
+    const headerHeight = 100;
+    const topPadding = 40;
+    const bottomPadding = 40;
+    const headerMarginBottom = 30;
+    const buttonArea = 240;
+    const buttonGap = 15;
+    const scrollViewHeightRpx = (windowHeight * rpxRatio) - headerHeight - topPadding - bottomPadding - headerMarginBottom - buttonArea - buttonGap;
+    
+    this.setData({
+      resultScrollHeight: Math.max(400, scrollViewHeightRpx)
+    });
+  },
+
+  // 结果页面swiper切换
+  onResultSwiperChange(e) {
+    const current = e.detail.current;
+    // 切换到任何一页时都更新高度
+    if (current === 0) {
+      this.updateReviewScrollHeight();
+    } else if (current === 1) {
+      this.updateResultScrollHeight();
+    }
+  },
+
   retry() {
     wx.navigateBack({ delta: 2 });
+  },
+
+  goHome() {
+    wx.reLaunch({
+      url: '/pages/home/index'
+    });
   }
 });
