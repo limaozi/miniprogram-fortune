@@ -4,10 +4,26 @@
   <view class="subtitle">探索经典角色的命运轨迹</view>
   
   <view class="story-list">
-    <view class="story-card" wx:for="{{stories}}" wx:key="id" bindtap="selectStory" data-id="{{item.id}}">
-      <view class="story-icon">{{item.icon}}</view>
-      <view class="story-name">{{item.name}}</view>
-      <view class="story-desc">{{item.desc}}</view>
-    </view>
+    <block wx:if="{{stories.length >= 1}}">
+      <view class="story-card" bindtap="selectStory" data-id="{{stories[0].id}}">
+        <canvas  type="2d" canvas-id="coverCanvas0" class="story-cover"></canvas>
+        <view class="story-name">{{stories[0].name}}</view>
+        <view class="story-desc">{{stories[0].desc}}</view>
+      </view>
+    </block>
+    <block wx:if="{{stories.length >= 2}}">
+      <view class="story-card" bindtap="selectStory" data-id="{{stories[1].id}}">
+        <canvas  type="2d" canvas-id="coverCanvas1" class="story-cover"></canvas>
+        <view class="story-name">{{stories[1].name}}</view>
+        <view class="story-desc">{{stories[1].desc}}</view>
+      </view>
+    </block>
+    <block wx:if="{{stories.length >= 3}}">
+      <view class="story-card" bindtap="selectStory" data-id="{{stories[2].id}}">
+        <canvas  type="2d" canvas-id="coverCanvas2" class="story-cover"></canvas>
+        <view class="story-name">{{stories[2].name}}</view>
+        <view class="story-desc">{{stories[2].desc}}</view>
+      </view>
+    </block>
   </view>
 </view>
