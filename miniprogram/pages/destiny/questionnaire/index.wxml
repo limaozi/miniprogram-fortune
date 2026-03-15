@@ -3,24 +3,23 @@
   <view class="header">
     <view class="title">命运抉择</view>
     <view class="subtitle">{{characterName}} · {{storyName}}</view>
-    <view class="progress" wx:if="{{currentIndex <= questions.length - 1 && !showResult}}">
+    <view class="progress" wx:if="{{!showResult && !isLoading && !generateLoading}}">
       问题 {{currentIndex + 1}} / {{questions.length}}
     </view>
   </view>
 
   <!-- 问卷界面 -->
-  <view class="question-container" wx:if="{{!showResult && !isLoading && !generateLoading && currentIndex <= questions.length - 1}}">
+  <view class="question-container" wx:if="{{!showResult && !isLoading && !generateLoading && questions.length > 0}}">
     <view class="question-card">
       <view class="question-counter">第 {{currentIndex + 1}} 题</view>
       <view class="question-text">{{questions[currentIndex].question}}</view>
-      
       <view class="options-container">
-        <view 
-          class="option-item {{selectedAnswer === index ? 'selected' : ''}}" 
-          wx:for="{{questions[currentIndex].options}}" 
+        <view
+          class="option-item {{selectedAnswer === index ? 'selected' : ''}}"
+          wx:for="{{questions[currentIndex].options}}"
           wx:key="index"
           wx:for-index="index"
-          bindtap="selectOption" 
+          bindtap="selectOption"
           data-index="{{index}}">
           <view class="option-indicator">
             <view class="option-circle {{selectedAnswer === index ? 'checked' : ''}}">
@@ -31,9 +30,8 @@
         </view>
       </view>
     </view>
-
     <view class="button-container">
-      <button 
+      <button
         class="submit-button {{selectedAnswer !== null ? 'active' : ''}}"
         bindtap="nextQuestion"
         disabled="{{selectedAnswer === null}}"
@@ -41,7 +39,7 @@
     </view>
   </view>
 
-  <!-- 加载状态 - 底部显示 -->
+  <!-- 加载状态 -->
   <view class="spinner-bottom" wx:if="{{isLoading || generateLoading}}">
     <view class="loading-container">
       <view class="loading-spinner"></view>
@@ -50,82 +48,74 @@
   </view>
 
   <!-- 结果展示 - Swiper 布局 -->
-    <swiper 
-    class="result-swiper" 
-    wx:if="{{showResult}}" 
-    current="{{0}}" 
-    indicator-dots="true" 
-    circular="false"
+  <swiper
+    class="result-swiper"
+    wx:if="{{showResult}}"
+    current="{{resultPage}}"
     bindchange="onResultSwiperChange"
-    style="height: 100vh;"
-    >
-      <!-- 左边：题目回顾 -->
-      <swiper-item>
-        <view class="review-container">
-          <view class="review-header">
-            <view class="review-title">你的选择</view>
-            <text class="swipe-hint-text-small">右滑查看结果 →</text>
-          </view>
-          <scroll-view 
-            class="review-content" 
-            scroll-y="{{true}}"
-            show-scrollbar="{{true}}"
-            enhanced="{{true}}"
-            bounces="{{false}}"
-            enable-back-to-top="{{false}}"
-            style="height: {{reviewScrollHeight}}rpx;"
-          >
-            <view class="review-list">
-              <view class="review-item" wx:for="{{questions}}" wx:key="index" wx:for-index="qIndex">
-                <view class="review-question-card">
-                  <view class="review-question-number">问题{{qIndex + 1}}</view>
-                  <view class="review-question-text">{{item.question}}</view>
-                </view>
-                <view class="review-options">
-                  <view class="review-option selected">
-                    <view class="review-option-indicator">
-                      <view class="review-option-circle checked">
-                        <view class="review-option-checkmark"></view>
-                      </view>
-                    </view>
-                    <text class="review-option-text">{{item.options[answers[qIndex]]}}</text>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </scroll-view>
-        </view>
-      </swiper-item>
+    style="height: 100vh;">
 
-      <!-- 右边：分析结果 -->
-      <swiper-item>
-        <view class="result-container">
-          <view class="result-header">
-            <text class="swipe-hint-text-small">← 左滑返回</text>
-          </view>
-          <view class="analysis-card">
-            <view class="result-icon">{{resultIcon}}</view>
-            <text class="result-type">{{resultTitle}}</text>
-          </view>
-          <scroll-view 
-          class="result-content" 
+    <!-- 左边：题目回顾 -->
+    <swiper-item>
+      <view class="review-container">
+        <view class="review-header">
+          <text class="review-title">你的选择</text>
+          <text class="swipe-hint-text-small">右滑查看结果 →</text>
+        </view>
+        <scroll-view
+          class="review-content"
           scroll-y="{{true}}"
           show-scrollbar="{{true}}"
           enhanced="{{true}}"
           bounces="{{false}}"
-          enable-back-to-top="{{false}}"
-          style="height: {{resultScrollHeight}}rpx;"
-          >
-        <view class="result-card">
-            <text class="result-description">{{resultContent}}</text>
-        </view>
+          style="height: {{reviewScrollHeight}}rpx;">
+          <view class="review-list">
+            <view class="review-item" wx:for="{{questions}}" wx:key="index" wx:for-index="qIdx">
+              <view class="review-question-card">
+                <text class="review-question-number">问题 {{qIdx + 1}}</text>
+                <text class="review-question-text">{{item.question}}</text>
+              </view>
+              <view class="review-options">
+                <view class="review-option selected">
+                  <view class="review-option-indicator">
+                    <view class="review-option-circle checked">
+                      <view class="review-option-checkmark"></view>
+                    </view>
+                  </view>
+                  <text class="review-option-text">{{item.options[answers[qIdx]]}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
         </scroll-view>
-        <!-- 底部按钮组 -->
+      </view>
+    </swiper-item>
+
+    <!-- 右边：分析结果 -->
+    <swiper-item>
+      <view class="result-container">
+        <view class="result-header">
+          <text class="result-title">{{characterName}}的命运</text>
+          <text class="swipe-hint-text-small">← 左滑返回</text>
+        </view>
+        <scroll-view
+          class="result-content"
+          scroll-y="{{true}}"
+          show-scrollbar="{{true}}"
+          enhanced="{{true}}"
+          bounces="{{false}}"
+          style="height: {{resultScrollHeight}}rpx;">
+          <view class="result-card">
+            <text class="result-type">{{resultTitle}}</text>
+            <canvas type="2d" id="resultCharCanvas" class="result-char-canvas"></canvas>
+            <text class="result-description">{{resultContent}}</text>
+          </view>
+        </scroll-view>
         <view class="result-buttons">
-          <button class="restart-button" bindtap="goHome">返回首页</button>
-          <button class="back-button" bindtap="retry">重新测试</button>
+          <button class="restart-button" bindtap="retry">重新测试</button>
+          <button class="back-button" bindtap="goHome">返回首页</button>
         </view>
-        </view>
-      </swiper-item>
-    </swiper>
+      </view>
+    </swiper-item>
+  </swiper>
 </view>

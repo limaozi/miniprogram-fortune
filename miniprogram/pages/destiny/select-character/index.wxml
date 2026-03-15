@@ -4,8 +4,8 @@
   <view class="subtitle">{{storyName}}</view>
   
   <view class="character-list">
-    <view class="character-card" wx:for="{{characters}}" wx:key="id" bindtap="selectCharacter" data-id="{{item.id}}">
-      <view class="character-avatar">{{item.avatar}}</view>
+    <view class="character-card" wx:for="{{characters}}" wx:key="id" bindtap="selectCharacter" data-id="{{item.id}}" data-index="{{index}}">
+      <canvas type="2d" id="charCanvas{{index}}" class="character-canvas"></canvas>
       <view class="character-name">{{item.name}}</view>
       <view class="character-desc">{{item.desc}}</view>
     </view>

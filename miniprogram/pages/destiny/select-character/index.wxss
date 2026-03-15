@@ -43,9 +43,12 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
-.character-avatar {
-  font-size: 100rpx;
-  margin-bottom: 20rpx;
+.character-canvas {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  margin-bottom: 16rpx;
+  background: rgba(102, 126, 234, 0.2);
 }
 
 .character-name {

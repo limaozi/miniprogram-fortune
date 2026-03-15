@@ -5,12 +5,12 @@ const OPEN_METEO_BASE = 'https://api.open-meteo.com/v1/forecast';
 const WX_LOCATION_KEY = 'F4SBZ-SY6LJ-LHCFC-XFRW7-2CNC5-YHBYX';
 
 // 测试环境配置
-const IS_TEST_ENV = true; // 设置为 false 使用生产环境
+const IS_TEST_ENV = false; // 设置为 false 使用生产环境
 
 // 生产环境配置
 const DEEPSEEK_API_URL_PROD = 'https://api.deepseek.com/v1/chat/completions';
 const AI_MODEL_PROD = 'deepseek-chat';
-const ENCRYPTED_API_KEY_PROD = 'c2stNjBhZjA4NDIyY2I3NDNhNThjMGY2ZTI2MDM5ZGZlZDI=';
+const ENCRYPTED_API_KEY_PROD = '';
 
 // 测试环境配置
 const DEEPSEEK_API_URL_TEST = 'https://integrate.api.nvidia.com/v1/chat/completions';
@@ -273,81 +273,60 @@ const callDeepseekAPI = (prompt, options = {}) => {
 
 // ===== Destiny Page Data and Utilities =====
 const DESTINY_STORIES = [
-  {
-    id: 'hongloumeng',
-    name: '红楼梦',
-    icon: '🏮',
-    desc: '四大名著之首，封建社会的百科全书'
-  },
-  {
-    id: 'zhenhuanzhuan',
-    name: '甄嬛传',
-    icon: '👑',
-    desc: '宫廷权谋，女性成长史诗'
-  },
-  {
-    id: 'zhifou',
-    name: '知否知否应是绿肥红瘦',
-    icon: '🌸',
-    desc: '古代女性的智慧与抉择'
-  }
+  { id: 'honglou',       name: '红楼梦',             frameKey: 'honglou',       desc: '四大名著之首，封建社会的百科全书' },
+  { id: 'zhenhuanzhuan', name: '甄嬛传',             frameKey: 'zhenhuanzhuan', desc: '宫廷权谋，女性成长史诗' },
+  { id: 'zhifou',        name: '知否知否应是绿肥红瘦', frameKey: 'zhifou',        desc: '古代女性的智慧与抉择' }
 ];
 
 const DESTINY_CHARACTERS = {
-  hongloumeng: {
+  honglou: {
     name: '红楼梦',
     characters: [
-      { id: 'lind', name: '林黛玉', avatar: '🌺', desc: '才华横溢，敏感多情' },
-      { id: 'baoc', name: '贾宝玉', avatar: '💎', desc: '叛逆不羁，情深意重' },
-      { id: 'xueb', name: '薛宝钗', avatar: '🦋', desc: '端庄贤淑，处事圆融' },
-      { id: 'wangx', name: '王熙凤', avatar: '👸', desc: '精明能干，权谋高手' }
+      { id: 'daiyu',   name: '林黛玉', frameKey: 'daiyu',   desc: '才华横溢，敏感多情' },
+      { id: 'baochai', name: '薛宝钗', frameKey: 'baochai', desc: '端庄贤淑，处事圆融' },
+      { id: 'baoyu',   name: '贾宝玉', frameKey: 'baoyu',   desc: '叛逆不羁，情深意重' },
+      { id: 'xifeng',  name: '王熙凤', frameKey: 'xifeng',  desc: '精明能干，权谋高手' }
     ]
   },
   zhenhuanzhuan: {
     name: '甄嬛传',
     characters: [
-      { id: 'zhenh', name: '甄嬛', avatar: '👑', desc: '从天真到成熟的蜕变' },
-      { id: 'huanghou', name: '皇后', avatar: '🦚', desc: '高贵冷艳，心机深沉' },
-      { id: 'huafei', name: '华妃', avatar: '🔥', desc: '骄纵跋扈，爱恨分明' },
-      { id: 'jingfei', name: '敬妃', avatar: '🌙', desc: '温柔善良，隐忍坚韧' }
+      { id: 'zhenhuan', name: '甄嬛', frameKey: 'zhenhuan', desc: '从天真到成熟的蜕变' },
+      { id: 'huanghou', name: '皇后', frameKey: 'huanghou', desc: '高贵冷艳，心机深沉' },
+      { id: 'huafei',   name: '华妃', frameKey: 'huafei',   desc: '骄纵跋扈，爱恨分明' },
+      { id: 'jingfei',  name: '敬妃', frameKey: 'jingfei',  desc: '温柔善良，隐忍坚韧' }
     ]
   },
   zhifou: {
     name: '知否知否应是绿肥红瘦',
     characters: [
-      { id: 'minglan', name: '盛明兰', avatar: '🌸', desc: '聪慧隐忍，步步为营' },
-      { id: 'molan', name: '盛墨兰', avatar: '🥀', desc: '野心勃勃，不择手段' },
-      { id: 'rulan', name: '盛如兰', avatar: '🌼', desc: '直率真诚，敢爱敢恨' },
-      { id: 'hualan', name: '盛华兰', avatar: '🌹', desc: '温婉大气，持家有道' }
+      { id: 'minglan', name: '盛明兰', frameKey: 'minglan', desc: '聪慧隐忍，步步为营' },
+      { id: 'molan',   name: '盛墨兰', frameKey: 'molan',   desc: '野心勃勃，不择手段' },
+      { id: 'rulan',   name: '盛如兰', frameKey: 'rulan',   desc: '直率真诚，敢爱敢恨' },
+      { id: 'hualan',  name: '盛华兰', frameKey: 'hualan',  desc: '温婉大气，持家有道' }
     ]
   }
 };
 
 const DESTINY_CHARACTER_INFO = {
-  hongloumeng: {
-    lind: { name: '林黛玉', desc: '才华横溢、敏感多情的女子，红楼梦中的悲剧人物' },
-    baoc: { name: '贾宝玉', desc: '木石前盟的痴情公子，反叛传统但又不得不接受命运' },
-    xueb: { name: '薛宝钗', desc: '端庄贤淑、处事圆融的公侯千金' },
-    wangx: { name: '王熙凤', desc: '精明能干、权谋高手、贾府的实际管理者' }
+  honglou: {
+    daiyu:   { name: '林黛玉', desc: '才华横溢、敏感多情的女子，红楼梦中的悲剧人物' },
+    baochai: { name: '薛宝钗', desc: '端庄贤淑、处事圆融的公侯千金' },
+    baoyu:   { name: '贾宝玉', desc: '木石前盟的痴情公子，反叛传统但又不得不接受命运' },
+    xifeng:  { name: '王熙凤', desc: '精明能干、权谋高手、贾府的实际管理者' }
   },
   zhenhuanzhuan: {
-    zhenh: { name: '甄嬛', desc: '从天真少女到后宫之主的蜕变者，经历过陷害、复仇與权谋' },
+    zhenhuan: { name: '甄嬛', desc: '从天真少女到后宫之主的蜕变者，经历过陷害、复仇与权谋' },
     huanghou: { name: '皇后', desc: '高贵冷艳、心机深沉的皇后，为维护地位不惜一切' },
-    huafei: { name: '华妃', desc: '骄纵跋扈、爱恨分明的妃嫔，权势者的悲剧' },
-    jingfei: { name: '敬妃', desc: '温柔善良、隐忍坚韧的妃嫔，沉默中蕴含力量' }
+    huafei:   { name: '华妃', desc: '骄纵跋扈、爱恨分明的妃嫔，权势者的悲剧' },
+    jingfei:  { name: '敬妃', desc: '温柔善良、隐忍坚韧的妃嫔，沉默中蕴含力量' }
   },
   zhifou: {
     minglan: { name: '盛明兰', desc: '聪慧隐忍、步步为营的庶女，用智慧改变命运' },
-    molan: { name: '盛墨兰', desc: '野心勃勃、不择手段的庶女，最终为所作所为付出代价' },
-    rulan: { name: '盛如兰', desc: '直率真诚、敢爱敢恨的二女儿' },
-    hualan: { name: '盛华兰', desc: '温婉大气、持家有道的长女' }
+    molan:   { name: '盛墨兰', desc: '野心勃勃、不择手段的庶女，最终为所作所为付出代价' },
+    rulan:   { name: '盛如兰', desc: '直率真诚、敢爱敢恨的二女儿' },
+    hualan:  { name: '盛华兰', desc: '温婉大气、持家有道的长女' }
   }
-};
-
-const DESTINY_STORY_NAMES = {
-  hongloumeng: '红楼梦',
-  zhenhuanzhuan: '甄嬛传',
-  zhifou: '知否知否应是绿肥红瘦'
 };
 
 const DESTINY_DEFAULT_QUESTIONS = [
@@ -409,7 +388,6 @@ App({
   destinyStories: DESTINY_STORIES,
   destinyCharacters: DESTINY_CHARACTERS,
   destinyCharacterInfo: DESTINY_CHARACTER_INFO,
-  destinyStoryNames: DESTINY_STORY_NAMES,
   destinyDefaultQuestions: DESTINY_DEFAULT_QUESTIONS,
   getIconByTitle: getIconByTitle,
   parseAnalysisResponse: parseAnalysisResponse,
@@ -447,6 +425,8 @@ App({
       currentDateStr,
       currentSeasonEn,
       currentSeasonZh,
+      destinyAtlas: null,   // destiny-atlas.json 数据
+      destinyImage: null,   // destiny.png 图片对象
       cityName: '', // 地区
       weatherText: '', // 天气描述
       weatherTemp: '', // 温度

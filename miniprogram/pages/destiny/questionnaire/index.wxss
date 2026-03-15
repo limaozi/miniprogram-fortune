@@ -214,3 +214,12 @@
   text-align: center;
   font-family: 'PingFang SC', sans-serif;
 }
+
+.result-char-canvas {
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 20rpx;
+  margin: 20rpx auto 30rpx;
+  display: block;
+  background: rgba(102, 126, 234, 0.15);
+}

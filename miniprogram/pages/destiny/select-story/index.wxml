@@ -6,21 +6,21 @@
   <view class="story-list">
     <block wx:if="{{stories.length >= 1}}">
       <view class="story-card" bindtap="selectStory" data-id="{{stories[0].id}}">
-        <canvas  type="2d" canvas-id="coverCanvas0" class="story-cover"></canvas>
+        <canvas type="2d" id="coverCanvas0" class="story-cover"></canvas>
         <view class="story-name">{{stories[0].name}}</view>
         <view class="story-desc">{{stories[0].desc}}</view>
       </view>
     </block>
     <block wx:if="{{stories.length >= 2}}">
       <view class="story-card" bindtap="selectStory" data-id="{{stories[1].id}}">
-        <canvas  type="2d" canvas-id="coverCanvas1" class="story-cover"></canvas>
+        <canvas type="2d" id="coverCanvas1" class="story-cover"></canvas>
         <view class="story-name">{{stories[1].name}}</view>
         <view class="story-desc">{{stories[1].desc}}</view>
       </view>
     </block>
     <block wx:if="{{stories.length >= 3}}">
       <view class="story-card" bindtap="selectStory" data-id="{{stories[2].id}}">
-        <canvas  type="2d" canvas-id="coverCanvas2" class="story-cover"></canvas>
+        <canvas type="2d" id="coverCanvas2" class="story-cover"></canvas>
         <view class="story-name">{{stories[2].name}}</view>
         <view class="story-desc">{{stories[2].desc}}</view>
       </view>

@@ -1,72 +1,50 @@
-// 问卷页面 - 使用 API 动态生成问题
-const characterBasicInfo = {
-  hongloumeng: {
-    lind: { name: '林黛玉', desc: '才华横溢、敏感多情的女子，红楼梦中的悲剧人物' },
-    baoc: { name: '贾宝玉', desc: '木石前盟的痴情公子，反叛传统但又不得不接受命运' },
-    xueb: { name: '薛宝钗', desc: '端庄贤淑、处事圆融的公侯千金' },
-    wangx: { name: '王熙凤', desc: '精明能干、权谋高手、贾府的实际管理者' }
-  },
-  zhenhuanzhuan: {
-    zhenh: { name: '甄嬛', desc: '从天真少女到后宫之主的蜕变者，经历过陷害、复仇与权谋' },
-    huanghou: { name: '皇后', desc: '高贵冷艳、心机深沉的皇后，为维护地位不惜一切' },
-    huafei: { name: '华妃', desc: '骄纵跋扈、爱恨分明的妃嫔，权势者的悲剧' },
-    jingfei: { name: '敬妃', desc: '温柔善良、隐忍坚韧的妃嫔，沉默中蕴含力量' }
-  },
-  zhifou: {
-    minglan: { name: '盛明兰', desc: '聪慧隐忍、步步为营的庶女，用智慧改变命运' },
-    molan: { name: '盛墨兰', desc: '野心勃勃、不择手段的庶女，最终为所作所为付出代价' },
-    rulan: { name: '盛如兰', desc: '直率真诚、敢爱敢恨的二女儿' },
-    hualan: { name: '盛华兰', desc: '温婉大气、持家有道的长女' }
-  }
-};
-
+// 问卷页面 - 数据和工具函数均来自 app
 Page({
   data: {
     storyId: '',
     characterId: '',
     storyName: '',
     characterName: '',
+    characterFrameKey: '',   // 用于结果页绘制角色图
     questions: [],
     currentIndex: 0,
     selectedAnswer: null,
-    answers: [],
+    answers: [],             // 存储每题选中的选项 index（数字）
     showResult: false,
     isLoading: false,
     generateLoading: true,
+    resultPage: 0,
     resultIcon: '',
     resultTitle: '',
     resultContent: '',
-    loadingText: '',
-    reviewScrollHeight: 0, // 回顾页面scroll-view高度
-    resultScrollHeight: 0  // 结果页面scroll-view高度
+    reviewScrollHeight: 0,
+    resultScrollHeight: 0
   },
 
   onLoad(options) {
+    const app = getApp();
     const { storyId, characterId } = options;
-    const characterInfo = characterBasicInfo[storyId]?.[characterId];
-    
+    const characterInfo = app.destinyCharacterInfo[storyId]?.[characterId];
+
     if (!characterInfo) {
-      wx.showToast({ title: '数据错误', icon: 'none' });
+      //wx.showToast({ title: '数据错误', icon: 'none' });
       return;
     }
 
-    const storyNames = {
-      hongloumeng: '红楼梦',
-      zhenhuanzhuan: '甄嬛传',
-      zhifou: '知否知否应是绿肥红瘦'
-    };
+    // 找到角色的 frameKey
+    const charList = app.destinyCharacters[storyId]?.characters || [];
+    const charData = charList.find(c => c.id === characterId);
 
     this.setData({
       storyId,
       characterId,
-      storyName: storyNames[storyId],
+      storyName: app.destinyCharacters[storyId]?.name || '',
       characterName: characterInfo.name,
+      characterFrameKey: charData?.frameKey || '',
       generateLoading: true,
-      isLoading: true,
-      loadingText: '正在生成命运相关的问题……'
+      isLoading: true
     });
 
-    // 生成问题
     this.generateQuestions(storyId, characterId, characterInfo);
   },
 
@@ -91,11 +69,11 @@ Return ONLY valid JSON in this exact format:
     }
   ]
 }`;
-
+    //console.log(prompt);
     const app = getApp();
     app.callDeepseekAPI(prompt)
       .then(response => {
-        console.log('生成的问题原始响应:', response);
+        //console.log('生成的问题原始响应:', response);
         
         let questions = [];
         try {
@@ -123,7 +101,7 @@ Return ONLY valid JSON in this exact format:
             
             if (lastBraceIndex !== -1) {
               let jsonStr = response.substring(firstBraceIndex, lastBraceIndex + 1);
-              console.log('提取的JSON字符串:', jsonStr.substring(0, 200) + '...');
+              //console.log('提取的JSON字符串:', jsonStr.substring(0, 200) + '...');
               
               // 清理JSON字符串
               jsonStr = jsonStr.trim();
@@ -147,14 +125,13 @@ Return ONLY valid JSON in this exact format:
 
         // 如果解析失败或没有问题，使用备用方案
         if (!questions || questions.length === 0) {
-          console.log('使用备用问题');
-          questions = this.getDefaultQuestions(characterInfo.name);
+          questions = getApp().destinyDefaultQuestions.slice();
         }
 
         // 确保有5个问题
         if (questions.length < 5) {
-          const defaultQuestions = this.getDefaultQuestions(characterInfo.name);
-          questions = questions.concat(defaultQuestions.slice(questions.length));
+          const defaults = getApp().destinyDefaultQuestions;
+          questions = questions.concat(defaults.slice(questions.length));
         } else if (questions.length > 5) {
           questions = questions.slice(0, 5);
         }
@@ -168,39 +145,21 @@ Return ONLY valid JSON in this exact format:
       })
       .catch(error => {
         console.error('生成问题失败:', error);
-        
-        // 使用备用方案
-        const defaultQuestions = this.getDefaultQuestions(characterInfo.name);
+        const defaultQuestions = getApp().destinyDefaultQuestions.slice();
         this.setData({
           questions: defaultQuestions,
           answers: new Array(defaultQuestions.length).fill(null),
           generateLoading: false,
           isLoading: false
         });
-        
-        wx.showToast({ 
-          title: '使用默认问题', 
-          icon: 'none',
-          duration: 1500
-        });
+        //wx.showToast({ title: '使用默认问题', icon: 'none', duration: 1500 });
       });
-  },
-
-  getDefaultQuestions(characterName) {
-    // 备用问题集
-    const defaults = [
-      { question: '面对生活中的重大抉择，你会？', options: ['顺从本心', '听从劝告', '寻求平衡', '倾听直觉'] },
-      { question: '在利益与信念冲突时，你选择？', options: ['坚守信念', '权衡利益', '寻求折中', '随遇而安'] },
-      { question: '面对误解和指责，你会？', options: ['直言相对', '沉默承受', '冷静化解', '远离喧嚣'] },
-      { question: '在感情与责任之间，你更看重？', options: ['追求感情', '肩负责任', '两者兼顾', '保持独立'] },
-      { question: '面对未知的未来，你的态度是？', options: ['勇敢前行', '谨慎筹谋', '珍惜当下', '接纳变化'] }
-    ];
-    return defaults;
   },
 
   selectOption(e) {
     const index = e.currentTarget.dataset.index;
-    const { currentIndex, answers } = this.data;
+    const { currentIndex } = this.data;
+    const answers = [...this.data.answers];
     answers[currentIndex] = index;
     
     this.setData({
@@ -210,22 +169,30 @@ Return ONLY valid JSON in this exact format:
   },
 
   nextQuestion() {
-    if (this.data.selectedAnswer === null) {
-      wx.showToast({ title: '请选择一个选项', icon: 'none' });
+    const { selectedAnswer, currentIndex, questions, answers } = this.data;
+
+    if (selectedAnswer === null) {
+      //wx.showToast({ title: '请选择一个选项', icon: 'none' });
       return;
     }
 
-    // 如果是最后一题，提交答案
-    if (this.data.currentIndex === this.data.questions.length - 1) {
-      this.submitAnswers();
+    // 确保当前题答案已写入（防止 selectOption 的异步问题）
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentIndex] = selectedAnswer;
+
+    if (currentIndex === questions.length - 1) {
+      // 最后一题：先同步写入答案，再提交
+      this.setData({ answers: updatedAnswers }, () => {
+        this.submitAnswers();
+      });
       return;
     }
 
-    // 否则进入下一题
-    const nextIndex = this.data.currentIndex + 1;
+    const nextIndex = currentIndex + 1;
     this.setData({
+      answers: updatedAnswers,
       currentIndex: nextIndex,
-      selectedAnswer: this.data.answers[nextIndex]
+      selectedAnswer: updatedAnswers[nextIndex] !== undefined ? updatedAnswers[nextIndex] : null
     });
   },
 
@@ -239,7 +206,7 @@ Return ONLY valid JSON in this exact format:
 
   submitAnswers() {
     if (this.data.selectedAnswer === null) {
-      wx.showToast({ title: '请选择一个选项', icon: 'none' });
+      //wx.showToast({ title: '请选择一个选项', icon: 'none' });
       return;
     }
 
@@ -269,7 +236,7 @@ Requirements (respond in Chinese):
 1. Combine ${characterName}'s personality traits and destiny trajectory from the original work
 2. Based on user's choices, analyze the resulting destiny outcome
 3. Give a poetic destiny title (4-6 Chinese characters)
-4. Write a 200-300 word analysis with literary depth and thoughtfulness
+4. Write a 150-200 word analysis with literary depth and thoughtfulness
 5. Use line breaks and emojis to make the response feel human-like and engaging
 6. Include encouraging comments about the user's choices where appropriate
 7. Response format should be clear and easy to understand
@@ -279,56 +246,25 @@ Output format (respond ONLY in this format):
 分析：[Detailed analysis with paragraphs and emojis]
 
 Return ONLY the formatted response, no extra content. And the results must in Chinese`;
-
+    //console.log(prompt);
     const app = getApp();
     app.callDeepseekAPI(prompt)
       .then(response => {
         console.log('AI响应:', response);
-        
-        // 解析响应
-        const lines = response.split('\n');
-        let title = '';
-        let content = '';
-        
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (line.startsWith('标题：') || line.startsWith('标题:')) {
-            title = line.replace(/^标题[：:]/, '').trim();
-          } else if (line.startsWith('分析：') || line.startsWith('分析:')) {
-            content = line.replace(/^分析[：:]/, '').trim();
-            // 收集后续所有行作为内容
-            for (let j = i + 1; j < lines.length; j++) {
-              if (lines[j].trim()) {
-                content += '\n' + lines[j].trim();
-              }
-            }
-            break;
-          }
-        }
-
-        // 如果没有找到标题和分析，尝试直接使用响应
-        if (!title || !content) {
-          const parts = response.split('\n\n');
-          if (parts.length >= 2) {
-            title = parts[0].replace(/^标题[：:]/, '').trim();
-            content = parts.slice(1).join('\n\n').replace(/^分析[：:]/, '').trim();
-          } else {
-            title = '命运之轮';
-            content = response;
-          }
-        }
+        const { title, content } = app.parseAnalysisResponse(response);
 
         this.setData({
           showResult: true,
           isLoading: false,
-          resultIcon: this.getIconByTitle(title),
+          resultPage: 0,
+          resultIcon: app.getIconByTitle(title),
           resultTitle: title,
           resultContent: content
         });
-        // 延迟更新高度，确保DOM已更新
-        setTimeout(() => {
-          this.updateResultScrollHeight();
-        }, 100);
+        this.updateReviewScrollHeight();
+        this.updateResultScrollHeight();
+        // 延迟初始化结果页角色 canvas（等 swiper 切换后再绘制）
+        setTimeout(() => this.initResultCharCanvas(), 300);
       })
       .catch(error => {
         console.error('AI分析失败:', error);
@@ -338,16 +274,7 @@ Return ONLY the formatted response, no extra content. And the results must in Ch
   },
 
   getIconByTitle(title) {
-    // 根据标题关键词返回合适的图标
-    if (title.includes('勇') || title.includes('开拓') || title.includes('进取')) return '🌟';
-    if (title.includes('智') || title.includes('谋') || title.includes('慧')) return '🌙';
-    if (title.includes('平衡') || title.includes('和') || title.includes('圆满')) return '🌸';
-    if (title.includes('安') || title.includes('静') || title.includes('淡')) return '🍃';
-    if (title.includes('权') || title.includes('势') || title.includes('强')) return '👑';
-    if (title.includes('情') || title.includes('爱') || title.includes('心')) return '💖';
-    if (title.includes('悲') || title.includes('苦') || title.includes('难')) return '🥀';
-    if (title.includes('福') || title.includes('喜') || title.includes('乐')) return '🌺';
-    return '✨';
+    return getApp().getIconByTitle(title);
   },
 
   // 计算并设置回顾页面scroll-view的高度
@@ -386,15 +313,58 @@ Return ONLY the formatted response, no extra content. And the results must in Ch
     });
   },
 
-  // 结果页面swiper切换
   onResultSwiperChange(e) {
     const current = e.detail.current;
-    // 切换到任何一页时都更新高度
-    if (current === 0) {
-      this.updateReviewScrollHeight();
-    } else if (current === 1) {
+    this.setData({ resultPage: current });
+    if (current === 0) this.updateReviewScrollHeight();
+    if (current === 1) {
       this.updateResultScrollHeight();
+      setTimeout(() => this.initResultCharCanvas(), 100);
     }
+  },
+
+  initResultCharCanvas() {
+    const { characterFrameKey } = this.data;
+    if (!characterFrameKey) return;
+
+    const query = this.createSelectorQuery();
+    query.select('#resultCharCanvas').fields({ node: true, size: true }).exec((res) => {
+      if (!res || !res[0] || !res[0].node) return;
+
+      const canvasNode = res[0].node;
+      const cssWidth = res[0].width;
+      const cssHeight = res[0].height;
+      const dpr = wx.getSystemInfoSync().pixelRatio || 1;
+
+      canvasNode.width = cssWidth * dpr;
+      canvasNode.height = cssHeight * dpr;
+      const ctx = canvasNode.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const { destinyImage, destinyAtlas } = getApp().globalData;
+      if (!destinyImage || !destinyAtlas) return;
+
+      const frame = destinyAtlas.frames[characterFrameKey];
+      if (!frame) return;
+
+      // 保持比例居中绘制（cover 效果）
+      const srcRatio = frame.w / frame.h;
+      const dstRatio = cssWidth / cssHeight;
+      let sx = frame.x, sy = frame.y, sw = frame.w, sh = frame.h;
+
+      if (srcRatio > dstRatio) {
+        // 源图更宽，裁左右
+        sw = frame.h * dstRatio;
+        sx = frame.x + (frame.w - sw) / 2;
+      } else {
+        // 源图更高，裁上下
+        sh = frame.w / dstRatio;
+        sy = frame.y + (frame.h - sh) / 2;
+      }
+
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
+      ctx.drawImage(destinyImage, sx, sy, sw, sh, 0, 0, cssWidth, cssHeight);
+    });
   },
 
   retry() {
